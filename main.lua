@@ -185,19 +185,6 @@ function WordReference:lookup_and_show(phrase)
     width = window_w,
     height = available_height,
     scroll_bar_width = Screen:scaleBySize(10),
-    highlight_text_selection = true,
-    -- We need to override the widget's paintTo method to draw our indicator
-    paintTo = self.allow_key_text_selection and function(widget, bb, x, y)
-        -- Call original paintTo from ScrollHtmlWidget
-        ScrollHtmlWidget.paintTo(widget, bb, x, y)
-        -- Draw our indicator on top if we have one
-        if self.nt_text_selector_indicator then
-            local rect = self.nt_text_selector_indicator
-            -- Draw indicator - use crosshairs style
-            bb:paintRect(rect.x + x, rect.y + y + rect.h/2 - 1, rect.w, 2, Blitbuffer.COLOR_BLACK)
-            bb:paintRect(rect.x + x + rect.w/2 - 1, rect.y + y, 2, rect.h, Blitbuffer.COLOR_BLACK)
-        end
-    end or nil,
   }
 
   local content_container = FrameContainer:new {
