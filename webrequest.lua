@@ -245,7 +245,7 @@ local function strip_html_tags(html)
     for i = 2, #rows do
       local cells = rows[i]
       local source_phrases = cells[1] or ""
-      local example_sentences = cells[2] or ""
+      local example_sentence = cells[2] or ""
       local target_phrases = cells[3] or ""
 
       -- Strip newlines.
@@ -255,20 +255,27 @@ local function strip_html_tags(html)
       target_phrases = target_phrases
         :gsub("[\r\n]+", " ")
         :gsub("<[bB][rR][^>]*>", " ")
+      example_sentence = example_sentence
+        :gsub("[\r\n]+", " ")
+        :gsub("<[bB][rR][^>]*>", " ")
 
-      if (source_phrases ~= "" and target_phrases ~= "") then
+      if not is_blank(source_phrases) then
+        -- Must be the start of a new definition row (there can be subrows in a definition row)
+        table.insert(output, "<br /><br />")
         table.insert(output, source_phrases)
+      end
+
+      if not is_blank(target_phrases) then
         table.insert(output, "<br />")
-        if example_sentences ~= "" then
-            table.insert(output, example_sentences)
-            table.insert(output, "<br />")
-        end
         table.insert(output, target_phrases)
+      end
+
+      if not is_blank(example_sentence) then
         table.insert(output, "<br />")
-        table.insert(output, "<br />")
+        table.insert(output, example_sentence)
       end
     end
-    return (#output > 0) and table.concat(output, "\n") or nil
+    return (#output > 0) and table.concat(output) or nil
   end
 
   function webrequest.parse_wr_html_for_snippet_as_html(html)
@@ -277,6 +284,10 @@ local function strip_html_tags(html)
     if not table_html or #table_html == 0 then return nil end
     local rows = parse_table_rows(table_html)
     return format_rows_to_html(rows)
+  end
+
+  function is_blank(s)
+    return #s:gsub("%s+", "") == 0
   end
 
 return webrequest
