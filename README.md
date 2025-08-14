@@ -2,6 +2,10 @@
 
 Lookup highlighted words or phrases on WordReference directly from KOReader.
 
+<p align="left">
+<img src="https://github.com/user-attachments/assets/7f1d3281-30b5-468e-a9cf-0438ed77ca1d" width=60%>
+</p>
+
 ## Install
 
 - Copy the `wordreference.koplugin` folder to your KOReader `plugins` directory on the device.
@@ -19,3 +23,5 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
   - Open Menu → Tools 🛠️ → More tools → WordReference.
   - Pick your desired translation (e.g., it→en, en→it, etc.).
   - The chosen languages are saved in KOReader settings and persists across restarts.
+- Shortcut:
+  - Also available directly from the definition popup via the ⚙️ button on the top-left.
