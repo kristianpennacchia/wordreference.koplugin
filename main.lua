@@ -16,6 +16,7 @@ local VerticalGroup = require("ui/widget/verticalgroup")
 local Size = require("ui/size")
 local TitleBar = require("ui/widget/titlebar")
 local WebRequest = require("webrequest")
+local HtmlParser = require("htmlparser")
 local _ = require("gettext")
 
 local WordReference = WidgetContainer:extend {
@@ -118,10 +119,10 @@ function WordReference:lookup_and_show(phrase)
     UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), err or (res and res.status_line) or _("unknown")) })
     return
   end
-  local snippet = WebRequest.parse_wr_html_for_snippet_as_html(res.body)
-  if not snippet then
+  local content, error = HtmlParser.parse(res.body)
+  if not content then
     UIManager:close(progressMessage);
-    UIManager:show(InfoMessage:new{ text = _("No results found on WordReference.") })
+    UIManager:show(InfoMessage:new{ text = _(error or "No results found on WordReference.") })
     return
   end
   UIManager:close(progressMessage);
@@ -160,7 +161,7 @@ function WordReference:lookup_and_show(phrase)
   end
 
   local html_widget = ScrollHtmlWidget:new{
-    html_body = snippet,
+    html_body = content,
     -- css = self:getHtmlDictionaryCss(),
     default_font_size = Screen:scaleBySize(14),
     width = window_w,
@@ -214,7 +215,7 @@ function WordReference:lookup_and_show(phrase)
   }
   -- Ensure the HTML widget knows about its dialog for proper event handling
   html_widget.dialog = result_dialog
-  
+
   UIManager:show(result_dialog)
 end
 
