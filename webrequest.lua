@@ -177,18 +177,6 @@ local function strip_html_tags(html)
     end
     return extract_balanced_table_at(html, start_pos)
   end
-  
-  -- Decode a few common HTML entities
-  local function decode_basic_entities(s)
-    if not s or s == "" then return s or "" end
-    s = s:gsub("&nbsp;", " ")
-    s = s:gsub("&amp;", "&")
-    s = s:gsub("&quot;", '"')
-    s = s:gsub("&#39;", "'")
-    s = s:gsub("&lt;", "<")
-    s = s:gsub("&gt;", ">")
-    return s
-  end
 
   -- Parse table rows into arrays of cell texts (skip header rows)
   local function parse_table_rows(table_html)
