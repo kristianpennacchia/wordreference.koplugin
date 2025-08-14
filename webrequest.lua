@@ -190,29 +190,6 @@ local function strip_html_tags(html)
     return s
   end
 
-  -- Convert a cell's HTML to readable text while preserving intended breaks
-  local function cell_html_to_text(cell_html)
-    if not cell_html or #cell_html == 0 then return "" end
-    local s = cell_html
-    -- Normalize breaks/lists/paragraphs to newlines
-    s = s:gsub("<[bB][rR][^>]*>", "\n")
-    s = s:gsub("<[lL][iI][^>]*>", "- ")
-    s = s:gsub("</[lL][iI]%s*>", "\n")
-    s = s:gsub("</[pP]%s*>", "\n")
-    s = s:gsub("</[dD][iI][vV]%s*>", "\n")
-    -- Strip remaining tags
-    s = s:gsub("<[^>]+>", "")
-    -- Decode a few entities
-    s = decode_basic_entities(s)
-    -- Normalize whitespace but keep newlines
-    s = s:gsub("\r\n", "\n"):gsub("\r", "\n")
-    s = s:gsub("[ \t]+", " ")
-    s = s:gsub(" *\n *", "\n")
-    s = s:gsub("\n\n+", "\n")
-    s = s:gsub("^%s+", ""):gsub("%s+$", "")
-    return s
-  end
-
   -- Parse table rows into arrays of cell texts (skip header rows)
   local function parse_table_rows(table_html)
     local rows = {}
@@ -252,8 +229,7 @@ local function strip_html_tags(html)
         local close_start = row_chunk_lower:find(close_tag, open_end + 1, true)
         if not close_start then break end
         local inner = row_chunk:sub(open_end + 1, close_start - 1)
-        local text = cell_html_to_text(inner)
-        table.insert(cells, text)
+        table.insert(cells, inner)
         cell_pos = close_start + #close_tag
       end
       if not is_header and #cells > 0 then
@@ -263,37 +239,44 @@ local function strip_html_tags(html)
     return rows
   end
 
-  local function format_rows_to_text(rows)
+  local function format_rows_to_html(rows)
     if not rows or #rows == 0 then return nil end
     local output = {}
-    table.insert(output, "--------------------")
     for i = 2, #rows do
       local cells = rows[i]
       local source_phrases = cells[1] or ""
       local example_sentences = cells[2] or ""
       local target_phrases = cells[3] or ""
-      
-      source_phrases = source_phrases:gsub("[\r\n]+", " ")
-      target_phrases = target_phrases:gsub("[\r\n]+", " ")
+
+      -- Strip newlines.
+      source_phrases = source_phrases
+        :gsub("[\r\n]+", " ")
+        :gsub("<[bB][rR][^>]*>", " ")
+      target_phrases = target_phrases
+        :gsub("[\r\n]+", " ")
+        :gsub("<[bB][rR][^>]*>", " ")
 
       if (source_phrases ~= "" and target_phrases ~= "") then
-        table.insert(output, string.format("⟵ %s", source_phrases))
+        table.insert(output, source_phrases)
+        table.insert(output, "<br />")
         if example_sentences ~= "" then
-            table.insert(output, string.format("◦ %s", example_sentences))
+            table.insert(output, example_sentences)
+            table.insert(output, "<br />")
         end
-        table.insert(output, string.format("⟶ %s", target_phrases))
-        table.insert(output, "--------------------")
+        table.insert(output, target_phrases)
+        table.insert(output, "<br />")
+        table.insert(output, "<br />")
       end
     end
     return (#output > 0) and table.concat(output, "\n") or nil
   end
 
-  function webrequest.parse_wr_html_for_snippet(html)
+  function webrequest.parse_wr_html_for_snippet_as_html(html)
     if not html or #html == 0 then return nil end
     local table_html = extract_first_wrd_table(html)
     if not table_html or #table_html == 0 then return nil end
     local rows = parse_table_rows(table_html)
-    return format_rows_to_text(rows)
+    return format_rows_to_html(rows)
   end
 
 return webrequest
