@@ -179,8 +179,8 @@ function WordReference:lookup_and_show(phrase)
   end
 
   local html_widget = ScrollHtmlWidget:new{
-    html_body = content,
-    -- css = self:getHtmlDictionaryCss(),
+    html_body = string.format('<div class="wr">%s</div>', content),
+    css = self:getHtmlCss(),
     default_font_size = Screen:scaleBySize(14),
     width = window_w,
     height = available_height,
@@ -235,6 +235,61 @@ function WordReference:lookup_and_show(phrase)
   html_widget.dialog = result_dialog
 
   UIManager:show(result_dialog)
+end
+
+function WordReference:getHtmlCss()
+  return [[
+/* Scope */
+.wr table { width:100%; border-collapse:collapse; table-layout:fixed; }
+.wr td, .wr th { padding:.40rem .60rem; vertical-align:top; line-height:1.45; }
+
+/* Column proportions */
+.wr td:nth-child(1) { width:42%; }
+.wr td:nth-child(2) { width:16%; }
+.wr td:nth-child(3) { width:42%; }
+
+/* Emphasis */
+.wr td.FrWrd { font-weight:700; }
+.wr td.ToWrd { font-weight:600; }
+.wr td.POS2  { font-style:italic; white-space:normal; color:#555; }
+
+/* Examples: a touch smaller + indented */
+.wr td.FrEx, .wr td.ToEx {
+  font-size:.96em; color:#222;
+  padding-top:.2rem; padding-bottom:.35rem;
+}
+.wr td.FrEx { padding-left:1.4rem; }
+.wr td.ToEx { padding-left:.8rem; }
+
+/* Clean typography */
+.wr em { font-style:italic; color:#444; }
+.wr small { font-size:.90em; color:#666; }
+.wr td { word-break:normal; overflow-wrap:break-word; }
+
+/* Clear any generic borders */
+.wr td { border:0; }
+
+/* Divider only for rows that begin with a source cell (new definition) */
+.wr td.FrWrd,
+.wr td.FrWrd + td,
+.wr td.FrWrd + td + td {
+  border-top:2px solid #9a9a9a;
+  padding-top:.55rem;
+}
+
+/* Examples stay attached, no divider */
+.wr td.FrEx, .wr td.ToEx { border-top:0; }
+
+/* Target example sentence */
+.wr td.ToEx {
+  font-style: italic;
+}
+
+/* Source example sentence */
+.wr td.FrEx {
+  font-style: normal;
+}
+]]
 end
 
 return WordReference
