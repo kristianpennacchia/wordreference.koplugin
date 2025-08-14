@@ -101,12 +101,30 @@ function WordReference:showSettings(close_callback)
     })
   end
 
+  local centered_container
+
   menu = Menu:new{
     title = _("WordReference"),
     item_table = items,
     width = math.min(Screen:getWidth() * 0.6, Screen:scaleBySize(400)),
+    height = Screen:getHeight() * 0.9,
+    is_popout = false,
+    close_callback = function()
+      UIManager:close(centered_container)
+    end
   }
-  UIManager:show(menu)
+
+  centered_container = CenterContainer:new {
+    dimen = {
+      x = 0,
+      y = 0,
+      w = Screen:getWidth(),
+      h = Screen:getHeight()
+    },
+    menu,
+  }
+
+  UIManager:show(centered_container)
 end
 
 function WordReference:lookup_and_show(phrase)
@@ -115,17 +133,17 @@ function WordReference:lookup_and_show(phrase)
   local url = WebRequest.build_wr_url(phrase, self:get_settings().from_lang, self:get_settings().to_lang)
   local res, err = WebRequest.http_get(url)
   if not res or tonumber(res.status) ~= 200 then
-    UIManager:close(progressMessage);
+    UIManager:close(progressMessage)
     UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), err or (res and res.status_line) or _("unknown")) })
     return
   end
   local content, error = HtmlParser.parse(res.body)
   if not content then
-    UIManager:close(progressMessage);
+    UIManager:close(progressMessage)
     UIManager:show(InfoMessage:new{ text = _(error or "No results found on WordReference.") })
     return
   end
-  UIManager:close(progressMessage);
+  UIManager:close(progressMessage)
 
   local result_dialog
 
