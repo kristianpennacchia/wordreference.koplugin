@@ -70,7 +70,7 @@ end
 
 function WordReference:showSettings(close_callback)
   local menu
-  local data = WordReference:getAsset("language_pairs.json")
+  local data = getAsset("language_pairs.json")
   local jsonArray = Json.decode(data)
   local items = {}
   for i, pair in ipairs(jsonArray) do
@@ -166,7 +166,7 @@ function WordReference:lookup_and_show(phrase)
 
   local html_widget = ScrollHtmlWidget:new{
     html_body = string.format('<div class="wr">%s</div>', content),
-    css = WordReference:getAsset("definition_tables.css"),
+    css = getAsset("definition_tables.css"),
     default_font_size = Screen:scaleBySize(14),
     width = window_w,
     height = available_height,
@@ -210,7 +210,7 @@ function WordReference:lookup_and_show(phrase)
   UIManager:show(result_dialog)
 end
 
-function WordReference:getAsset(filename)
+function getAsset(filename)
   local src = debug.getinfo(1, "S").source
   local dir = src:match("^@(.*[/\\])") or ""
   local path = dir .. filename
