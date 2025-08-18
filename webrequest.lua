@@ -1,18 +1,9 @@
+local Http = require("socket.http")
+local Https = require("ssl.https")
+local URL = require("socket.url")
+local LTN12 = require("ltn12")
+
 local WebRequest = {}
-
--- Optional deps (avoid hard failures in builds that lack them)
-local ok_http,  Http  = pcall(require, "socket.http")
-local ok_https, Https = pcall(require, "ssl.https")
-local ok_url,   URL   = pcall(require, "socket.url")
-local ok_ltn12, LTN12 = pcall(require, "ltn12")
-
-local function url_encode(s)
-  if not s then return "" end
-  if ok_url and URL.escape then return URL.escape(s) end
-  return (s:gsub("[^%w%-_%.~]", function(c)
-    return string.format("%%%02X", string.byte(c))
-  end))
-end
 
 function WebRequest.http_get(url, headers)
   headers = headers or {
@@ -23,35 +14,51 @@ function WebRequest.http_get(url, headers)
 
   local scheme = (url:match("^(https?)://") or "http"):lower()
   local request =
-    (scheme == "https" and ok_https and Https.request) or
-    (scheme == "http"  and ok_http  and Http.request)
+    (scheme == "https" and Https and Https.request) or
+    (scheme == "http"  and Http  and Http.request)
 
   if not request then
     return nil, "no HTTP client available for scheme: " .. scheme
   end
 
-  if ok_ltn12 and LTN12 and LTN12.sink and LTN12.sink.table then
-    local chunks = {}
-    local ok, code, resp_headers, status = request{
-      url = url,
-      method = "GET",
-      headers = headers,
-      sink = LTN12.sink.table(chunks),
-    }
-    if not ok then return nil, tostring(code or "request error") end
-    return {
-      status = code, headers = resp_headers,
-      body = table.concat(chunks), status_line = status
-    }, nil
-  else
-    local body, code, resp_headers, status = request(url)
-    if not body then return nil, tostring(code or "request error") end
-    return { status = code, headers = resp_headers, body = body, status_line = status }, nil
+  local chunks = {}
+  local ok, code, resp_headers, status = request{
+    url = url,
+    method = "GET",
+    headers = headers,
+    sink = LTN12.sink.table(chunks),
+  }
+  if not ok then return nil, tostring(code or "request error") end
+
+  -- Check for redirect.
+  if tostring(code) == "308" and resp_headers then
+    local loc = resp_headers.location or resp_headers.Location
+    if loc then
+      local next_url = URL.absolute(url, loc) or loc
+      local next_scheme = (next_url:match("^(https?)://") or "http"):lower()
+      local next_request =
+        (next_scheme == "https" and Https and Https.request) or
+        (next_scheme == "http"  and Http  and Http.request)
+      if not next_request then
+        return nil, "no HTTP client available for scheme: " .. next_scheme
+      end
+      chunks = {}
+      ok, code, resp_headers, status = next_request{
+        url = next_url,
+        method = "GET",
+        headers = headers,
+        sink = LTN12.sink.table(chunks),
+      }
+      if not ok then return nil, tostring(code or "request error") end
+      return { status = code, headers = resp_headers, body = table.concat(chunks), status_line = status }, nil
+    end
   end
+
+  return { status = code, headers = resp_headers, body = table.concat(chunks), status_line = status }, nil
 end
 
-function WebRequest.build_wr_url(query, from_lang, to_lang)
-  return string.format("https://www.wordreference.com/%s%s/%s", from_lang, to_lang, url_encode(query))
+function WebRequest.build_url(query, from_lang, to_lang)
+  return string.format("https://www.wordreference.com/%s%s/%s", from_lang, to_lang, URL.escape(query))
 end
 
 return WebRequest
