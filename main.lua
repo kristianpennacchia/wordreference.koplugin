@@ -127,8 +127,7 @@ end
 function WordReference:lookup_and_show(phrase)
   local progressMessage = InfoMessage:new{ text = string.format(_("Looking up ‘%s’ on WordReference…"), phrase) }
   UIManager:show(progressMessage)
-  local url = WebRequest.build_url(phrase, self:get_settings().from_lang, self:get_settings().to_lang)
-  local res, err = WebRequest.http_get(url)
+  local res, err = WebRequest.search(phrase, self:get_settings().from_lang, self:get_settings().to_lang)
   if not res or tonumber(res.status) ~= 200 then
     UIManager:close(progressMessage)
     UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), err or (res and res.status_line) or _("unknown")) })

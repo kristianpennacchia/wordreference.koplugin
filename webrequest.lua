@@ -5,7 +5,16 @@ local LTN12 = require("ltn12")
 
 local WebRequest = {}
 
-function WebRequest.http_get(url, headers)
+function WebRequest.search(query, from_lang, to_lang)
+  local url = build_url(query, from_lang, to_lang)
+  return http_get(url)
+end
+
+function build_url(query, from_lang, to_lang)
+  return string.format("https://www.wordreference.com/%s%s/%s", from_lang, to_lang, URL.escape(query))
+end
+
+function http_get(url, headers)
   headers = headers or {
     ["User-Agent"] = "KOReader-WordReference/0.1",
     ["Accept"] = "text/html",
@@ -55,10 +64,6 @@ function WebRequest.http_get(url, headers)
   end
 
   return { status = code, headers = resp_headers, body = table.concat(chunks), status_line = status }, nil
-end
-
-function WebRequest.build_url(query, from_lang, to_lang)
-  return string.format("https://www.wordreference.com/%s%s/%s", from_lang, to_lang, URL.escape(query))
 end
 
 return WebRequest
