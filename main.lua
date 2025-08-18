@@ -14,6 +14,7 @@ local Size = require("ui/size")
 local TitleBar = require("ui/widget/titlebar")
 local WebRequest = require("webrequest")
 local HtmlParser = require("htmlparser")
+local Json = require("json")
 local _ = require("gettext")
 
 local WordReference = WidgetContainer:extend {
@@ -67,27 +68,16 @@ function WordReference:addToMainMenu(menu_items)
   }
 end
 
-function WordReference:get_language_pairs()
-  return {
-    { from_lang = "en", to_lang = "it", label = "English → Italian" },
-    { from_lang = "it", to_lang = "en", label = "Italian → English" },
-    { from_lang = "en", to_lang = "es", label = "English → Spanish" },
-    { from_lang = "es", to_lang = "en", label = "Spanish → English" },
-    { from_lang = "en", to_lang = "fr", label = "English → French" },
-    { from_lang = "fr", to_lang = "en", label = "French → English" },
-    { from_lang = "en", to_lang = "de", label = "English → German" },
-    { from_lang = "de", to_lang = "en", label = "German → English" },
-  }
-end
-
 function WordReference:showSettings(close_callback)
   local menu
-  local pairs_list = self:get_language_pairs()
+  local data = WordReference:getAsset("language_pairs.json")
+  local jsonArray = Json.decode(data)
   local items = {}
-  for _, pair in ipairs(pairs_list) do
+  for i, pair in ipairs(jsonArray) do
+    local isActive = (pair.from_lang == self:get_settings().from_lang and pair.to_lang == self:get_settings().to_lang)
+    local indicator = isActive and "☑" or "☐"
     table.insert(items, {
-      text = pair.label or string.format("%s → %s", tostring(pair.from_lang or "?"), tostring(pair.to_lang or "?")),
-      checked = (self:get_settings() and pair.from_lang == self:get_settings().from_lang and pair.to_lang == self:get_settings().to_lang) or nil,
+      text = _(indicator .. " " .. pair.label),
       callback = function()
         self:save_settings(pair.from_lang, pair.to_lang)
         UIManager:close(menu)
@@ -176,7 +166,7 @@ function WordReference:lookup_and_show(phrase)
 
   local html_widget = ScrollHtmlWidget:new{
     html_body = string.format('<div class="wr">%s</div>', content),
-    css = self:getCss(),
+    css = WordReference:getAsset("definition_tables.css"),
     default_font_size = Screen:scaleBySize(14),
     width = window_w,
     height = available_height,
@@ -220,24 +210,17 @@ function WordReference:lookup_and_show(phrase)
   UIManager:show(result_dialog)
 end
 
-function WordReference:getCss()
+function WordReference:getAsset(filename)
   local src = debug.getinfo(1, "S").source
-
-  -- handles / and \
   local dir = src:match("^@(.*[/\\])") or ""
-
-  local path = dir .. "definition_tables.css"
-  local f, err = io.open(path, "r")
-  if not f then
-    UIManager:show(InfoMessage:new{
-      text = _("Couldn't read CSS: ") .. (err or path)
-    })
-    return nil
+  local path = dir .. filename
+  local file = io.open(path, 'r')
+  if file == nil then
+      return nil
   end
-
-  local css = f:read("*a")
-  f:close()
-  return css
+  local contents = file:read("*a")
+  file:close()
+  return contents
 end
 
 return WordReference

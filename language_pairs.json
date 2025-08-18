@@ -1,0 +1,62 @@
+[
+  { "from_lang": "en", "to_lang": "es", "label": "English → Spanish" },
+  { "from_lang": "es", "to_lang": "en", "label": "Spanish → English" },
+  { "from_lang": "es", "to_lang": "fr", "label": "Spanish → French" },
+  { "from_lang": "es", "to_lang": "pt", "label": "Spanish → Portuguese" },
+  { "from_lang": "es", "to_lang": "it", "label": "Spanish → Italian" },
+  { "from_lang": "es", "to_lang": "de", "label": "Spanish → German" },
+
+  { "from_lang": "en", "to_lang": "fr", "label": "English → French" },
+  { "from_lang": "fr", "to_lang": "en", "label": "French → English" },
+  { "from_lang": "fr", "to_lang": "es", "label": "French → Spanish" },
+
+  { "from_lang": "en", "to_lang": "it", "label": "English → Italian" },
+  { "from_lang": "it", "to_lang": "en", "label": "Italian → English" },
+  { "from_lang": "it", "to_lang": "es", "label": "Italian → Spanish" },
+
+  { "from_lang": "en", "to_lang": "de", "label": "English → German" },
+  { "from_lang": "de", "to_lang": "en", "label": "German → English" },
+  { "from_lang": "de", "to_lang": "es", "label": "German → Spanish" },
+
+  { "from_lang": "en", "to_lang": "nl", "label": "English → Dutch" },
+  { "from_lang": "nl", "to_lang": "en", "label": "Dutch → English" },
+
+  { "from_lang": "en", "to_lang": "sv", "label": "English → Swedish" },
+  { "from_lang": "sv", "to_lang": "en", "label": "Swedish → English" },
+
+  { "from_lang": "en", "to_lang": "is", "label": "English → Icelandic" },
+
+  { "from_lang": "en", "to_lang": "ru", "label": "English → Russian" },
+  { "from_lang": "ru", "to_lang": "en", "label": "Russian → English" },
+
+  { "from_lang": "en", "to_lang": "pt", "label": "English → Portuguese" },
+  { "from_lang": "pt", "to_lang": "en", "label": "Portuguese → English" },
+  { "from_lang": "pt", "to_lang": "es", "label": "Portuguese → Spanish" },
+
+  { "from_lang": "en", "to_lang": "pl", "label": "English → Polish" },
+  { "from_lang": "pl", "to_lang": "en", "label": "Polish → English" },
+
+  { "from_lang": "en", "to_lang": "ro", "label": "English → Romanian" },
+  { "from_lang": "ro", "to_lang": "en", "label": "Romanian → English" },
+
+  { "from_lang": "en", "to_lang": "cz", "label": "English → Czech" },
+  { "from_lang": "cz", "to_lang": "en", "label": "Czech → English" },
+
+  { "from_lang": "en", "to_lang": "gr", "label": "English → Greek" },
+  { "from_lang": "gr", "to_lang": "en", "label": "Greek → English" },
+
+  { "from_lang": "en", "to_lang": "tr", "label": "English → Turkish" },
+  { "from_lang": "tr", "to_lang": "en", "label": "Turkish → English" },
+
+  { "from_lang": "en", "to_lang": "zh", "label": "English → Chinese" },
+  { "from_lang": "zh", "to_lang": "en", "label": "Chinese → English" },
+
+  { "from_lang": "en", "to_lang": "ja", "label": "English → Japanese" },
+  { "from_lang": "ja", "to_lang": "en", "label": "Japanese → English" },
+
+  { "from_lang": "en", "to_lang": "ko", "label": "English → Korean" },
+  { "from_lang": "ko", "to_lang": "en", "label": "Korean → English" },
+
+  { "from_lang": "en", "to_lang": "ar", "label": "English → Arabic" },
+  { "from_lang": "ar", "to_lang": "en", "label": "Arabic → English" }
+]
