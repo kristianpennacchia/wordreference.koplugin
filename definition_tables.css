@@ -2,11 +2,6 @@
 .wr table { width:100%; border-collapse:collapse; table-layout:fixed; }
 .wr td, .wr th { padding:.40rem .60rem; vertical-align:top; line-height:1.45; }
 
-/* Column proportions */
-.wr td:nth-child(1) { width:42%; }
-.wr td:nth-child(2) { width:16%; }
-.wr td:nth-child(3) { width:42%; }
-
 /* Emphasis */
 .wr td.FrWrd { font-weight:700; }
 .wr td.ToWrd { font-weight:600; }
@@ -14,8 +9,10 @@
 
 /* Examples: a touch smaller + indented */
 .wr td.FrEx, .wr td.ToEx {
-  font-size:.96em; color:#222;
-  padding-top:.2rem; padding-bottom:.35rem;
+  font-size:.96em;
+  color:#222;
+  padding-top:.2rem;
+  padding-bottom:.35rem;
 }
 .wr td.FrEx { padding-left:1.4rem; }
 .wr td.ToEx { padding-left:.8rem; }
@@ -47,4 +44,17 @@
 /* Source example sentence */
 .wr td.FrEx {
   font-style: normal;
+}
+
+.wr .wrcopyright {
+  font-size:.60em;
+  padding-left:.8rem;
+}
+
+.wr .wrtopsection {
+  font-size:.60em;
+}
+
+.wr .langHeader {
+  display: none;
 }
