@@ -40,6 +40,10 @@ function WordReference:save_settings(from_lang, to_lang)
 end
 
 function WordReference:addToHighlightDialog()
+  if self.show_highlight_dialog_button == false then
+    return
+  end
+
   -- 12_search is the last item in the highlight dialog. We want to sneak in the 'WordReference' item
   -- second to last, thus name '11_wordreference' so the alphabetical sort keeps '12_search' last.
   self.ui.highlight:addToHighlightDialog("11_wordreference", function(this)
