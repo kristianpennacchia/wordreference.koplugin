@@ -35,7 +35,7 @@ end
 end
 
 function WordReference:get_settings()
-  return G_reader_settings:readSetting("wordreference_settings") or { from_lang = "from_test", to_lang = "to_test" }
+  return G_reader_settings:readSetting("wordreference_settings") or { from_lang = "it", to_lang = "en" }
 end
 
 function WordReference:save_settings(from_lang, to_lang)
