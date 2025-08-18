@@ -143,7 +143,6 @@ function WordReference:lookup_and_show(phrase)
 
   local result_dialog
 
-  -- Target dialog size: 60% of the screen
   local window_w = math.floor(Screen:getWidth() * 0.8)
   local window_h = math.floor(Screen:getHeight() * 0.8)
 
