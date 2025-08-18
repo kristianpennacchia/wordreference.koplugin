@@ -69,7 +69,7 @@ function WordReference:addToMainMenu(menu_items)
 end
 
 function WordReference:showSettings(close_callback)
-  local menu
+  local centered_container
   local data = getAsset("language_pairs.json")
   local jsonArray = Json.decode(data)
   local items = {}
@@ -80,7 +80,7 @@ function WordReference:showSettings(close_callback)
       text = _(indicator .. " " .. pair.label),
       callback = function()
         self:save_settings(pair.from_lang, pair.to_lang)
-        UIManager:close(menu)
+        UIManager:close(centered_container)
         if close_callback then
           close_callback()
         end
@@ -88,9 +88,7 @@ function WordReference:showSettings(close_callback)
     })
   end
 
-  local centered_container
-
-  menu = Menu:new{
+  local menu = Menu:new{
     title = _("WordReference"),
     item_table = items,
     width = math.min(Screen:getWidth() * 0.6, Screen:scaleBySize(400)),
@@ -101,7 +99,7 @@ function WordReference:showSettings(close_callback)
     end
   }
 
-  centered_container = CenterContainer:new {
+  centered_container = CenterContainer:new{
     dimen = {
       x = 0,
       y = 0,
@@ -110,6 +108,8 @@ function WordReference:showSettings(close_callback)
     },
     menu,
   }
+
+  menu.show_parent = centered_container
 
   UIManager:show(centered_container)
 end
