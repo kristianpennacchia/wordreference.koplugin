@@ -15,6 +15,7 @@ local TitleBar = require("ui/widget/titlebar")
 local WebRequest = require("webrequest")
 local HtmlParser = require("htmlparser")
 local Json = require("json")
+local Assets = require("assets")
 local _ = require("gettext")
 
 local WordReference = WidgetContainer:extend {
@@ -70,7 +71,7 @@ end
 
 function WordReference:showSettings(close_callback)
   local centered_container
-  local data = getAsset("language_pairs.json")
+  local data = Assets:getLanguagePairs()
   local jsonArray = Json.decode(data)
   local items = {}
   for i, pair in ipairs(jsonArray) do
@@ -166,7 +167,7 @@ function WordReference:lookup_and_show(phrase)
 
   local html_widget = ScrollHtmlWidget:new{
     html_body = string.format('<div class="wr">%s</div>', content),
-    css = getAsset("definition_tables.css"),
+    css = Assets:getDefinitionTablesStylesheet(),
     default_font_size = Screen:scaleBySize(14),
     width = window_w,
     height = available_height,
@@ -208,19 +209,6 @@ function WordReference:lookup_and_show(phrase)
   html_widget.dialog = result_dialog
 
   UIManager:show(result_dialog)
-end
-
-function getAsset(filename)
-  local src = debug.getinfo(1, "S").source
-  local dir = src:match("^@(.*[/\\])") or ""
-  local path = dir .. filename
-  local file = io.open(path, 'r')
-  if file == nil then
-      return nil
-  end
-  local contents = file:read("*a")
-  file:close()
-  return contents
 end
 
 return WordReference
