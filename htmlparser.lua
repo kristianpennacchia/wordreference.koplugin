@@ -85,28 +85,31 @@ local function parse_tag(html, tag_start)
   }
 end
 
--- Find the opening tag for an element with a given id.
-local function find_element_with_id(html, id)
-  local pos = 1
+-- Find all elements with a given id. Returns { {open=<tag>, close=<tag>}, ... }
+local function find_all_elements_with_id(html, id)
+  local out, pos = {}, 1
   while true do
 	local p1 = html:find('id="' .. id .. '"', pos, true)
 	local p2 = html:find("id='" .. id .. "'", pos, true)
 	local p  = math.min(p1 or math.huge, p2 or math.huge)
-	if p == math.huge then return nil end
+	if p == math.huge then break end
 
 	local tag_start = find_tag_start(html, p)
-	if not tag_start then return nil end
+	if not tag_start then pos = p + 1 goto continue end
 
-	local tag = parse_tag(html, tag_start)
-	if tag and tag.type == "open" then
-	  return tag
+	local open = parse_tag(html, tag_start)
+	if open and open.type == "open" then
+	  local close = find_matching_close(html, open)
+	  if close then out[#out+1] = { open = open, close = close } end
 	end
 	pos = p + 1
+	::continue::
   end
+  return out
 end
 
 -- Given an open_tag, find the matching close tag of the same name.
-local function find_matching_close(html, open_tag)
+function find_matching_close(html, open_tag)
   local name  = open_tag.name
   local i     = open_tag.stop + 1
   local depth = 1
@@ -130,44 +133,37 @@ local function find_matching_close(html, open_tag)
   return nil
 end
 
--- Collect ALL direct child <table> elements under #articleWRD (the provided parent tag).
--- Returns a single HTML string with those tables concatenated (or nil if none).
+-- Collect ALL descendant <table> elements under the given parent (any depth).
+-- Skips WR's "report error" table. Returns concatenated HTML or nil.
 local function extract_definition_tables(html, parent_open)
   local parent_close = find_matching_close(html, parent_open)
   local limit = parent_close and parent_close.start or #html
   local i = parent_open.stop + 1
-  local depth = 0 -- depth *inside* the parent element
   local chunks = {}
 
-  while i < limit do
+  while true do
 	local lt = html:find("<", i, true)
 	if not lt or lt >= limit then break end
-
-	local tag = parse_tag(html, lt)
-	if not tag then break end
+	local tag = parse_tag(html, lt); if not tag then break end
 
 	if tag.type == "open" then
-	  if depth == 0 and tag.name == "table"
-		 and not ((tag.class or ""):lower():find("wrreporterror", 1, true)) then
-		-- Found a direct child <table>: capture the whole element
-		local tclose = find_matching_close(html, tag)
-		if not tclose then break end
-		chunks[#chunks + 1] = html:sub(tag.start, tclose.stop)
+	  if tag.name == "table" and not tag.self_close then
+		local tclose = find_matching_close(html, tag); if not tclose then break end
+		local frag = html:sub(tag.start, tclose.stop)
+		if not frag:lower():find("wrreporterror", 1, true) then
+		  chunks[#chunks+1] = frag
+		end
 		i = tclose.stop + 1
 	  else
-		if not tag.self_close then depth = depth + 1 end
 		i = tag.stop + 1
 	  end
-	elseif tag.type == "close" then
-	  depth = math.max(0, depth - 1)
-	  i = tag.stop + 1
 	else
 	  i = tag.stop + 1
 	end
   end
 
   if #chunks == 0 then return nil end
-  return table.concat(chunks, "\n")
+  return table.concat(chunks, "<br /><br />")
 end
 
 -- Returns concatenated HTML of all definition tables.
@@ -177,17 +173,24 @@ function HtmlParser.parse(html)
 	return nil, "Empty HTML"
   end
 
-  local parent = find_element_with_id(html, "articleWRD")
-  if not parent then
+  -- Find ALL #articleWRD containers (some pages have more than one)
+  local parents = find_all_elements_with_id(html, "articleWRD")
+  if not parents or #parents == 0 then
 	return nil, "Element with id='articleWRD' not found"
   end
 
-  local tables_html = extract_definition_tables(html, parent)
-  if not tables_html then
-	return nil, "Direct child <table> not found under #articleWRD"
+  -- Collect tables from each container (any depth)
+  local parts = {}
+  for _, p in ipairs(parents) do
+	local frag = extract_definition_tables(html, p.open)
+	if frag and #frag > 0 then parts[#parts+1] = frag end
   end
 
-  return tables_html
+  if #parts == 0 then
+	return nil, "No <table> found under any #articleWRD"
+  end
+
+  return table.concat(parts)
 end
 
 return HtmlParser
