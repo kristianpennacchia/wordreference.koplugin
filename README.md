@@ -3,7 +3,7 @@
 Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 <p align="left">
-<img src="https://github.com/user-attachments/assets/7f1d3281-30b5-468e-a9cf-0438ed77ca1d" width=60%>
+<img src="https://github.com/user-attachments/assets/9865e1e5-7e60-4ab3-af82-582169d0aa2e" width=60%>
 </p>
 
 ## Install
