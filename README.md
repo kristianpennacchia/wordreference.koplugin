@@ -17,6 +17,9 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 2. Choose "WordReference".
 3. A popup shows the definitions from WordReference.
 
+- Shortcut:
+  - Also available from the dictionary quick lookup (replaces the redundant 'Close' button).
+
 ## Settings
 
 - Language selection:
