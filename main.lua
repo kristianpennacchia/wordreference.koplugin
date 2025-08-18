@@ -1,3 +1,4 @@
+local WordReference = require("wordreference")
 local Dispatcher = require("dispatcher")
 local Screen = require("device").screen
 local InfoMessage = require("ui/widget/infomessage")
@@ -7,7 +8,6 @@ local UIManager = require("ui/uimanager")
 local Menu = require("ui/widget/menu")
 local CenterContainer = require("ui/widget/container/centercontainer")
 local FrameContainer = require("ui/widget/container/framecontainer")
-local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local InputContainer = require("ui/widget/container/inputcontainer")
 local VerticalGroup = require("ui/widget/verticalgroup")
 local Size = require("ui/size")
@@ -17,11 +17,6 @@ local HtmlParser = require("htmlparser")
 local Json = require("json")
 local Assets = require("assets")
 local _ = require("gettext")
-
-local WordReference = WidgetContainer:extend {
-  name = "wordreference",
-  is_doc_only = false,
-}
 
 function WordReference:onDispatcherRegisterActions()
   Dispatcher:registerAction("wordreference_action", {category="none", event="showSettings", title=_("Word Reference"), general=true,})
