@@ -136,7 +136,8 @@ function WordReference:lookup_and_show(phrase)
   local content, error = HtmlParser.parse(res.body)
   if not content then
     UIManager:close(progressMessage)
-    UIManager:show(InfoMessage:new{ text = _(error or "No results found on WordReference.") })
+    print(string.format(_("HTML parsing error: %s"), error))
+    UIManager:show(InfoMessage:new{ text = _("No results found on WordReference.") })
     return
   end
   UIManager:close(progressMessage)
