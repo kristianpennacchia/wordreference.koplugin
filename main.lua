@@ -32,22 +32,26 @@ function WordReference:init()
 end
 
 function WordReference:onDictButtonsReady(dict_popup, buttons)
-    for j = 1, #buttons do
-        for k = 1, #buttons[j] do
-            if buttons[j][k].id == "close" then
-                buttons[j][k] = {
-                    id = "wordreference",
-                    text = _("WordReference"),
-                    callback = function()
-                      UIManager:scheduleIn(0.1, function()
-                          self:lookup_and_show(dict_popup.word)
-                      end)
-                    end
-                }
-            end
+  if dict_popup.is_wiki_fullpage then
+    return false
+  end
+
+  for j = 1, #buttons do
+    for k = 1, #buttons[j] do
+      if buttons[j][k].id == "close" then
+        buttons[j][k] = {
+          id = "wordreference",
+          text = _("WordReference"),
+          callback = function()
+            UIManager:scheduleIn(0.1, function()
+              self:lookup_and_show(dict_popup.word)
+            end)
+          end
+        }
         end
+      end
     end
-    return true -- we consume the event here!
+  return true -- we consume the event here!
 end
 
 function WordReference:get_settings()
