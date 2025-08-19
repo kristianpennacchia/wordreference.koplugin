@@ -39,7 +39,9 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
                     id = "wordreference",
                     text = _("WordReference"),
                     callback = function()
-                      WordReference:lookup_and_show(dict_popup.word)
+                      UIManager:scheduleIn(0.1, function()
+                          self:lookup_and_show(dict_popup.word)
+                      end)
                     end
                 }
             end
