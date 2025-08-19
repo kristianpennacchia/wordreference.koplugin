@@ -51,7 +51,9 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
         end
       end
     end
-  return true -- we consume the event here!
+
+  -- don't consume the event so that other listeners can handle `onDictButtonsReady` if they need to.
+  return false
 end
 
 function WordReference:get_settings()
