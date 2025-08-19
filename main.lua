@@ -67,8 +67,9 @@ function WordReference:addToHighlightDialog()
       return {
           text = string.format(_("WordReference (%s → %s)"), self:get_settings().from_lang, self:get_settings().to_lang),
           callback = function()
-            self:lookup_and_show(this.selected_text.text)
-            this:onClose()
+            UIManager:scheduleIn(0.1, function()
+                self:lookup_and_show(this.selected_text.text)
+            end)
           end,
       }
   end)
