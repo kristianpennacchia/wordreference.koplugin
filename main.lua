@@ -196,7 +196,6 @@ function WordReference:lookup_and_show(phrase)
 	default_font_size = Screen:scaleBySize(14),
 	width = window_w,
 	height = available_height,
-	scroll_bar_width = Screen:scaleBySize(10),
   }
 
   local content_container = FrameContainer:new {
