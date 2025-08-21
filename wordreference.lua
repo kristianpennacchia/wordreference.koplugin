@@ -50,7 +50,7 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 		  text = _("WordReference"),
 		  callback = function()
 			UIManager:scheduleIn(0.1, function()
-			  self:lookup_and_show(dict_popup.word)
+			  self:showDefinition(dict_popup.word)
 			end)
 		  end
 		}
@@ -82,7 +82,7 @@ function WordReference:addToHighlightDialog()
 		  text = string.format(_("WordReference (%s → %s)"), self:get_settings().from_lang, self:get_settings().to_lang),
 		  callback = function()
 			UIManager:scheduleIn(0.1, function()
-				self:lookup_and_show(this.selected_text.text)
+				self:showDefinition(this.selected_text.text)
 			end)
 		  end,
 	  }
@@ -146,7 +146,7 @@ function WordReference:showSettings(close_callback)
   UIManager:show(centered_container)
 end
 
-function WordReference:lookup_and_show(phrase)
+function WordReference:showDefinition(phrase)
   local progressMessage = InfoMessage:new{ text = string.format(_("Looking up ‘%s’ on WordReference…"), phrase) }
   UIManager:show(progressMessage)
   local res, err = WebRequest.search(phrase, self:get_settings().from_lang, self:get_settings().to_lang)
