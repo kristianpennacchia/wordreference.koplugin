@@ -24,10 +24,6 @@ local WordReference = WidgetContainer:extend {
   show_highlight_dialog_button = true,
 }
 
-function WordReference:onDispatcherRegisterActions()
-  Dispatcher:registerAction("wordreference_action", {category="none", event="showSettings", title=_("Word Reference"), general=true,})
-end
-
 function WordReference:init()
   self:onDispatcherRegisterActions()
   self.ui.menu:registerToMainMenu(self)
@@ -35,6 +31,18 @@ function WordReference:init()
   if self.ui.highlight then
 	self:addToHighlightDialog()
   end
+end
+
+function WordReference:get_settings()
+  return G_reader_settings:readSetting("wordreference_settings") or { from_lang = "it", to_lang = "en" }
+end
+
+function WordReference:save_settings(from_lang, to_lang)
+  G_reader_settings:saveSetting("wordreference_settings", { from_lang = from_lang, to_lang = to_lang})
+end
+
+function WordReference:onDispatcherRegisterActions()
+  Dispatcher:registerAction("wordreference_action", {category="none", event="showSettings", title=_("Word Reference"), general=true,})
 end
 
 function WordReference:onDictButtonsReady(dict_popup, buttons)
@@ -60,14 +68,6 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 
   -- don't consume the event so that other listeners can handle `onDictButtonsReady` if they need to.
   return false
-end
-
-function WordReference:get_settings()
-  return G_reader_settings:readSetting("wordreference_settings") or { from_lang = "it", to_lang = "en" }
-end
-
-function WordReference:save_settings(from_lang, to_lang)
-  G_reader_settings:saveSetting("wordreference_settings", { from_lang = from_lang, to_lang = to_lang})
 end
 
 function WordReference:addToHighlightDialog()
