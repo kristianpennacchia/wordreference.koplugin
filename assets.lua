@@ -9,16 +9,16 @@ function Assets.getDefinitionTablesStylesheet()
 end
 
 function getAsset(filename)
-  local src = debug.getinfo(1, "S").source
-  local dir = src:match("^@(.*[/\\])") or ""
-  local path = dir .. filename
-  local file = io.open(path, 'r')
-  if file == nil then
-	  return nil
-  end
-  local contents = file:read("*a")
-  file:close()
-  return contents
+	local src = debug.getinfo(1, "S").source
+	local dir = src:match("^@(.*[/\\])") or ""
+	local path = dir .. filename
+	local file = io.open(path, 'r')
+	if file == nil then
+		return nil
+	end
+	local contents = file:read("*a")
+	file:close()
+	return contents
 end
 
 return Assets
