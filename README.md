@@ -20,7 +20,7 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 3. A popup shows the definitions from WordReference.
 
 - Shortcut:
-  - Also available from the dictionary quick lookup (replaces the redundant 'Close' button).
+  - Also available from the dictionary/wikipedia lookup popup (replaces the redundant 'Close' button).
   - Also available with a short-long press if enabling both the `Override Dictionary Quick Lookup` setting from this plugin and `Dictionary on single word selection` from KOReader.
 
 ## Settings
