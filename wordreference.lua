@@ -7,6 +7,8 @@ local HtmlParser = require("htmlparser")
 local Json = require("json")
 local Assets = require("assets")
 local Dialog = require("dialog")
+local NetworkMgr = require("ui/network/manager")
+local Trapper = require("ui/trapper")
 local _ = require("gettext")
 
 local WordReference = WidgetContainer:extend {
@@ -22,18 +24,34 @@ function WordReference:init()
 	if self.ui.highlight then
 		self:addToHighlightDialog()
 	end
+
+	syncOverrideDictionaryQuickLookupChanged()
 end
 
-function WordReference:get_settings()
-	return G_reader_settings:readSetting("wordreference_settings") or { from_lang = "it", to_lang = "en" }
+function WordReference:get_override_dictionary_quick_lookup()
+	return G_reader_settings:readSetting("wordreference_override_dictionary_quick_lookup") or false
 end
 
-function WordReference:save_settings(from_lang, to_lang)
-	G_reader_settings:saveSetting("wordreference_settings", { from_lang = from_lang, to_lang = to_lang})
+function WordReference:save_override_dictionary_quick_lookup(should_override)
+	G_reader_settings:saveSetting("wordreference_override_dictionary_quick_lookup", should_override)
+end
+
+function WordReference:get_lang_settings()
+	return G_reader_settings:readSetting("wordreference_languages") or {
+		from_lang = "it",
+		to_lang = "en",
+	}
+end
+
+function WordReference:save_lang_settings(from_lang, to_lang)
+	G_reader_settings:saveSetting("wordreference_languages", {
+		from_lang = from_lang,
+		to_lang = to_lang,
+	})
 end
 
 function WordReference:onDispatcherRegisterActions()
-	Dispatcher:registerAction("wordreference_action", {category="none", event="showSettings", title=_("Word Reference"), general=true,})
+	Dispatcher:registerAction("wordreference_action", {category="none", event="Close", title=_("Word Reference"), general=true,})
 end
 
 function WordReference:onDictButtonsReady(dict_popup, buttons)
@@ -70,7 +88,7 @@ function WordReference:addToHighlightDialog()
 	-- second to last, thus name '11_wordreference' so the alphabetical sort keeps '12_search' last.
 	self.ui.highlight:addToHighlightDialog("11_wordreference", function(this)
 		return {
-			text = string.format(_("WordReference (%s → %s)"), self:get_settings().from_lang, self:get_settings().to_lang),
+			text = string.format(_("WordReference (%s → %s)"), self:get_lang_settings().from_lang, self:get_lang_settings().to_lang),
 			callback = function()
 				UIManager:scheduleIn(0.1, function()
 					self:showDefinition(this.selected_text.text)
@@ -84,27 +102,72 @@ function WordReference:addToMainMenu(menu_items)
 	menu_items.wordreference = {
 		text = "WordReference",
 		sorting_hint = "more_tools",
-		keep_menu_open = false,
-		callback = function()
-			self:showSettings()
-		end,
+		sub_item_table = {
+			{
+				text = "Override Dictionary Quick Lookup",
+				checked_func = function()
+					return WordReference:get_override_dictionary_quick_lookup()
+				end,
+				callback = function(button)
+					local newValue = self:get_override_dictionary_quick_lookup() == false
+					self:save_override_dictionary_quick_lookup(newValue)
+					syncOverrideDictionaryQuickLookupChanged()
+				end,
+			},
+			{
+				text = "Configure Languages",
+				callback = function(button)
+					self:showLanguageSettings()
+				end,
+				keep_menu_open = false,
+			},
+		},
 	}
 end
 
-function WordReference:showSettings(close_callback)
+function syncOverrideDictionaryQuickLookupChanged()
+	local ReaderHighlight = require("apps/reader/modules/readerhighlight")
+
+	if WordReference:get_override_dictionary_quick_lookup() then
+		-- Store original translate method if not already stored
+		if not ReaderHighlight._original_lookupDictWord then
+			ReaderHighlight._original_lookupDictWord = ReaderHighlight.lookupDictWord
+		end
+
+		-- Override translate method
+		ReaderHighlight.lookupDictWord = function(this_reader)
+			NetworkMgr:runWhenOnline(function()
+				Trapper:wrap(function()
+					WordReference:showDefinition(this_reader.selected_text.text, function()
+						this_reader:clear()
+					end)
+				end)
+			end)
+		end
+	else
+		-- Restore the override
+		if ReaderHighlight._original_lookupDictWord then
+			-- Restore the original method
+			ReaderHighlight.lookupDictWord = ReaderHighlight._original_lookupDictWord
+			ReaderHighlight._original_lookupDictWord = nil
+		end
+	end
+end
+
+function WordReference:showLanguageSettings(close_callback)
 	local settings_dialog
 
 	local data = Assets:getLanguagePairs()
 	local jsonArray = Json.decode(data)
 	local items = {}
 	for i, pair in ipairs(jsonArray) do
-		local isActive = (pair.from_lang == self:get_settings().from_lang
-					and pair.to_lang == self:get_settings().to_lang)
+		local isActive = (pair.from_lang == self:get_lang_settings().from_lang
+					and pair.to_lang == self:get_lang_settings().to_lang)
 		local indicator = isActive and "☑" or "☐"
 		table.insert(items, {
 			text = _(indicator .. " " .. pair.label),
 			callback = function()
-				self:save_settings(pair.from_lang, pair.to_lang)
+				self:save_lang_settings(pair.from_lang, pair.to_lang)
 				UIManager:close(settings_dialog)
 				if close_callback then
 					close_callback()
@@ -117,14 +180,17 @@ function WordReference:showSettings(close_callback)
 	UIManager:show(settings_dialog)
 end
 
-function WordReference:showDefinition(phrase)
+function WordReference:showDefinition(phrase, close_callback)
 	local progressMessage = InfoMessage:new{ text = string.format(_("Looking up ‘%s’ on WordReference…"), phrase) }
 	UIManager:show(progressMessage)
 
-	local res, err = WebRequest.search(phrase, self:get_settings().from_lang, self:get_settings().to_lang)
+	local res, err = WebRequest.search(phrase, self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
 	if not res or tonumber(res.status) ~= 200 then
 		UIManager:close(progressMessage)
 		UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), err or (res and res.status_line) or _("unknown")) })
+		if close_callback then
+			close_callback()
+		end
 		return
 	end
 
@@ -133,12 +199,22 @@ function WordReference:showDefinition(phrase)
 		UIManager:close(progressMessage)
 		print(string.format(_("HTML parsing error: %s"), error))
 		UIManager:show(InfoMessage:new{ text = _("No results found on WordReference.") })
+		if close_callback then
+			close_callback()
+		end
 		return
 	end
 
 	UIManager:close(progressMessage)
 
-	local definition_dialog = Dialog:makeDefinition(phrase, content)
+	local definition_dialog = Dialog:makeDefinition(
+		phrase,
+		content,
+		function()
+		if close_callback then
+			close_callback()
+		end
+	end)
 	UIManager:show(definition_dialog)
 end
 

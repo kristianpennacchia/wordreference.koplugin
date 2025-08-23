@@ -41,7 +41,7 @@ function Dialog:makeSettings(items)
 	return centered_container
 end
 
-function Dialog:makeDefinition(phrase, html_content)
+function Dialog:makeDefinition(phrase, html_content, close_callback)
 	local definition_dialog
 
 	local window_w = math.floor(Screen:getWidth() * 0.8)
@@ -54,12 +54,18 @@ function Dialog:makeDefinition(phrase, html_content)
 		title = phrase,
 		close_callback = function()
 			UIManager:close(definition_dialog)
+			if close_callback then
+				close_callback()
+			end
 		end,
 		left_icon = "appbar.settings",
 		left_icon_tap_callback = function()
 			local WordReference = require("wordreference")
-			WordReference:showSettings(function()
+			WordReference:showLanguageSettings(function()
 				UIManager:close(definition_dialog)
+				if close_callback then
+					close_callback()
+				end
 			end)
 		end,
 		show_parent = self,
