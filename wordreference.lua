@@ -66,8 +66,10 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 					id = "wordreference",
 					text = _("WordReference"),
 					callback = function()
-						UIManager:scheduleIn(0.1, function()
-							self:showDefinition(dict_popup.word)
+						NetworkMgr:runWhenOnline(function()
+							Trapper:wrap(function()
+								self:showDefinition(dict_popup.word)
+							end)
 						end)
 					end
 				}
@@ -90,8 +92,10 @@ function WordReference:addToHighlightDialog()
 		return {
 			text = string.format(_("WordReference (%s → %s)"), self:get_lang_settings().from_lang, self:get_lang_settings().to_lang),
 			callback = function()
-				UIManager:scheduleIn(0.1, function()
-					self:showDefinition(this.selected_text.text)
+				NetworkMgr:runWhenOnline(function()
+					Trapper:wrap(function()
+						self:showDefinition(this.selected_text.text)
+					end)
 				end)
 			end,
 		}
@@ -181,23 +185,21 @@ function WordReference:showLanguageSettings(close_callback)
 end
 
 function WordReference:showDefinition(phrase, close_callback)
-	local progressMessage = InfoMessage:new{ text = string.format(_("Looking up ‘%s’ on WordReference…"), phrase) }
-	UIManager:show(progressMessage)
+	local search_error, search_result = Trapper:dismissableRunInSubprocess(function()
+		return WebRequest.search(phrase, self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
+	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
 
-	local res, err = WebRequest.search(phrase, self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
-	if not res or tonumber(res.status) ~= 200 then
-		UIManager:close(progressMessage)
-		UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), err or (res and res.status_line) or _("unknown")) })
+	if not search_result or tonumber(search_result.status) ~= 200 then
+		UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), search_error or (search_result and search_result.status_line) or _("unknown")) })
 		if close_callback then
 			close_callback()
 		end
 		return
 	end
 
-	local content, error = HtmlParser.parse(res.body)
-	if not content then
-		UIManager:close(progressMessage)
-		print(string.format(_("HTML parsing error: %s"), error))
+	local html_content, parse_error = HtmlParser.parse(search_result.body)
+	if not html_content then
+		print(string.format(_("HTML parsing error: %s"), parse_error))
 		UIManager:show(InfoMessage:new{ text = _("No results found on WordReference.") })
 		if close_callback then
 			close_callback()
@@ -205,11 +207,9 @@ function WordReference:showDefinition(phrase, close_callback)
 		return
 	end
 
-	UIManager:close(progressMessage)
-
 	local definition_dialog = Dialog:makeDefinition(
 		phrase,
-		content,
+		html_content,
 		function()
 		if close_callback then
 			close_callback()
