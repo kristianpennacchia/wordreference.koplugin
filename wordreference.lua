@@ -140,6 +140,10 @@ function syncOverrideDictionaryQuickLookupChanged()
 
 		-- Override translate method
 		ReaderHighlight.lookupDictWord = function(this_reader)
+			if not NetworkMgr:isOnline() then
+				this_reader:clear()
+			end
+
 			NetworkMgr:runWhenOnline(function()
 				Trapper:wrap(function()
 					WordReference:showDefinition(this_reader.selected_text.text, function()
