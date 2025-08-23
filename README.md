@@ -19,11 +19,15 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 - Shortcut:
   - Also available from the dictionary quick lookup (replaces the redundant 'Close' button).
+  - Also available with a short-long press if enabling both the `Override Dictionary Quick Lookup` setting from this plugin and `Dictionary on single word selection` from KOReader.
 
 ## Settings
 
+- Quick Lookup:
+  - Open Menu → Tools 🛠️ → More tools → WordReference → Override Dictionary Quick Lookup.
+  - This will override the dictionary quick lookup feature that is enabled with the KOReader setting `Dictionary on single word selection`. If this setting is disabled, then this override will do nothing.
 - Language selection:
-  - Open Menu → Tools 🛠️ → More tools → WordReference.
+  - Open Menu → Tools 🛠️ → More tools → WordReference → Configure Languages.
   - Pick your desired translation (e.g., it→en, en→it, etc.).
   - The chosen languages are saved in KOReader settings and persists across restarts.
 - Shortcut:
