@@ -31,6 +31,5 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 - Language selection:
   - Open Menu → Tools 🛠️ → More tools → WordReference → Configure Languages.
   - Pick your desired translation (e.g., it→en, en→it, etc.).
-  - The chosen languages are saved in KOReader settings and persists across restarts.
 - Shortcut:
   - Also available directly from the definition popup via the ⚙️ button on the top-left.
