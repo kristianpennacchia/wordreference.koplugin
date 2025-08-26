@@ -16,6 +16,8 @@ local _ = require("gettext")
 local Dialog = {}
 
 function Dialog:makeSettings(items)
+	local centered_container
+
 	local menu = Menu:new{
 		title = _("WordReference"),
 		item_table = items,
