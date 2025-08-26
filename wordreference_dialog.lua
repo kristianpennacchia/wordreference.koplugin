@@ -150,6 +150,8 @@ function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 		},
 	})
 
+	ui:handleEvent(Event:new("WordReferenceDefinitionButtonsReady", ui, bottom_buttons))
+
 	local button_table = ButtonTable:new{
 		width = window_w,
 		buttons = bottom_buttons,
