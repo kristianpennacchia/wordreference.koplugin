@@ -68,7 +68,7 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 					callback = function()
 						NetworkMgr:runWhenOnline(function()
 							Trapper:wrap(function()
-								self:showDefinition(dict_popup.word)
+								self:showDefinition(dict_popup.ui, dict_popup.word)
 							end)
 						end)
 					end
@@ -94,7 +94,7 @@ function WordReference:addToHighlightDialog()
 			callback = function()
 				NetworkMgr:runWhenOnline(function()
 					Trapper:wrap(function()
-						self:showDefinition(this.selected_text.text)
+						self:showDefinition(self.ui, this.selected_text.text)
 					end)
 				end)
 			end,
@@ -142,7 +142,7 @@ function syncOverrideDictionaryQuickLookupChanged()
 		ReaderHighlight.lookupDictWord = function(this_reader)
 			if NetworkMgr:isOnline() then
 				Trapper:wrap(function()
-					WordReference:showDefinition(this_reader.selected_text.text, function()
+					WordReference:showDefinition(this_reader.ui, this_reader.selected_text.text, function()
 						this_reader:clear()
 					end)
 				end)
@@ -189,7 +189,7 @@ function WordReference:showLanguageSettings(close_callback)
 	UIManager:show(settings_dialog)
 end
 
-function WordReference:showDefinition(phrase, close_callback)
+function WordReference:showDefinition(ui, phrase, close_callback)
 	local search_error, search_result = Trapper:dismissableRunInSubprocess(function()
 		return WebRequest.search(phrase, self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
 	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
@@ -213,6 +213,7 @@ function WordReference:showDefinition(phrase, close_callback)
 	end
 
 	local definition_dialog = Dialog:makeDefinition(
+		ui,
 		phrase,
 		html_content,
 		function()

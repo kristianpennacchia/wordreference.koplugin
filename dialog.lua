@@ -7,6 +7,7 @@ local CenterContainer = require("ui/widget/container/centercontainer")
 local FrameContainer = require("ui/widget/container/framecontainer")
 local InputContainer = require("ui/widget/container/inputcontainer")
 local VerticalGroup = require("ui/widget/verticalgroup")
+local ButtonTable = require("ui/widget/buttontable")
 local Size = require("ui/size")
 local TitleBar = require("ui/widget/titlebar")
 local Assets = require("assets")
@@ -41,7 +42,7 @@ function Dialog:makeSettings(items)
 	return centered_container
 end
 
-function Dialog:makeDefinition(phrase, html_content, close_callback)
+function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 	local definition_dialog
 
 	local window_w = math.floor(Screen:getWidth() * 0.8)
@@ -88,6 +89,20 @@ function Dialog:makeDefinition(phrase, html_content, close_callback)
 		height = available_height,
 	}
 
+	local bottom_buttons = {}
+
+	local VocabBuilder = ui["vocabbuilder"]
+	if VocabBuilder then
+		VocabBuilder:onDictButtonsReady(ui, bottom_buttons)
+	end
+
+	local button_table = ButtonTable:new{
+		width = window_w,
+		buttons = bottom_buttons,
+		zero_sep = true,
+		show_parent = self,
+	}
+
 	local content_container = FrameContainer:new {
 		radius = Size.radius.window,
 		padding = 0,
@@ -96,6 +111,7 @@ function Dialog:makeDefinition(phrase, html_content, close_callback)
 		VerticalGroup:new {
 			titlebar,
 			html_widget,
+			#bottom_buttons > 0 and button_table or nil,
 		}
 	}
 
@@ -122,6 +138,13 @@ function Dialog:makeDefinition(phrase, html_content, close_callback)
 
 	-- Ensure the HTML widget knows about its dialog for proper event handling
 	html_widget.dialog = definition_dialog
+
+	-- Hack for compatibility with VocabBuilder button callback functionality
+	if VocabBuilder then
+		ui.ui = ui
+		ui.button_table = button_table
+		ui.lookupword = phrase
+	end
 
 	return definition_dialog
 end
