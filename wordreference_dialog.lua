@@ -11,6 +11,8 @@ local ButtonTable = require("ui/widget/buttontable")
 local Size = require("ui/size")
 local TitleBar = require("ui/widget/titlebar")
 local Assets = require("wordreference_assets")
+local Event = require("ui/event")
+local Translator = require("ui/translator")
 local _ = require("gettext")
 
 local Dialog = {}
@@ -99,6 +101,54 @@ function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 	if VocabBuilder then
 		VocabBuilder:onDictButtonsReady(ui, bottom_buttons)
 	end
+
+	table.insert(bottom_buttons, #bottom_buttons + 1, {
+		{
+			id = "wikipedia",
+			icon = "button.wikipedia",
+			callback = function()
+				UIManager:nextTick(function()
+					UIManager:close(definition_dialog)
+					if close_callback then
+						close_callback()
+					end
+					UIManager:setDirty("widget", "ui")
+
+					ui:handleEvent(Event:new("LookupWikipedia", phrase))
+				end)
+			end
+		},
+		{
+			id = "dictionary",
+			icon = "button.dictionary",
+			callback = function()
+				UIManager:nextTick(function()
+					UIManager:close(definition_dialog)
+					if close_callback then
+						close_callback()
+					end
+					UIManager:setDirty("widget", "ui")
+
+					ui.dictionary:onLookupWord(phrase, false, nil)
+				end)
+			end
+		},
+		{
+			id = "translate",
+			icon = "button.translate",
+			callback = function()
+				UIManager:nextTick(function()
+					UIManager:close(definition_dialog)
+					if close_callback then
+						close_callback()
+					end
+					UIManager:setDirty("widget", "ui")
+
+					Translator:showTranslation(phrase, true, nil, nil, true, nil)
+				end)
+			end
+		},
+	})
 
 	local button_table = ButtonTable:new{
 		width = window_w,
