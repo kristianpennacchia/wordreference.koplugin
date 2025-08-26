@@ -10,7 +10,7 @@ local VerticalGroup = require("ui/widget/verticalgroup")
 local ButtonTable = require("ui/widget/buttontable")
 local Size = require("ui/size")
 local TitleBar = require("ui/widget/titlebar")
-local Assets = require("assets")
+local Assets = require("wordreference_assets")
 local _ = require("gettext")
 
 local Dialog = {}
