@@ -189,7 +189,7 @@ function WordReference:showLanguageSettings(close_callback)
 	UIManager:show(settings_dialog)
 end
 
-function WordReference:showDefinition(phrase, close_callback)
+function WordReference:getDefinition(phrase, close_callback)
 	local search_error, search_result = Trapper:dismissableRunInSubprocess(function()
 		return WebRequest.search(phrase, self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
 	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
@@ -199,7 +199,7 @@ function WordReference:showDefinition(phrase, close_callback)
 		if close_callback then
 			close_callback()
 		end
-		return
+		return nil
 	end
 
 	local html_content, parse_error = HtmlParser.parse(search_result.body)
@@ -209,12 +209,17 @@ function WordReference:showDefinition(phrase, close_callback)
 		if close_callback then
 			close_callback()
 		end
-		return
+		return nil
 	end
 
+	return html_content
+end
+
+function WordReference:showDefinition(phrase, close_callback)
+	local definition = self:getDefinition(phrase, close_callback)
 	local definition_dialog = Dialog:makeDefinition(
 		phrase,
-		html_content,
+		definition,
 		function()
 		if close_callback then
 			close_callback()
