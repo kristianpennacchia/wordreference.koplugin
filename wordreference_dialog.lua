@@ -105,7 +105,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 	table.insert(bottom_buttons, #bottom_buttons + 1, {
 		{
 			id = "wikipedia",
-			icon = "button.wikipedia",
+			text = _("Wikipedia"),
 			callback = function()
 				UIManager:nextTick(function()
 					UIManager:close(definition_dialog)
@@ -120,7 +120,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 		},
 		{
 			id = "dictionary",
-			icon = "button.dictionary",
+			text = _("Dictionary"),
 			callback = function()
 				UIManager:nextTick(function()
 					UIManager:close(definition_dialog)
@@ -135,7 +135,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 		},
 		{
 			id = "translate",
-			icon = "button.translate",
+			text = _("Translate"),
 			callback = function()
 				UIManager:nextTick(function()
 					UIManager:close(definition_dialog)
