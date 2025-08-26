@@ -121,7 +121,7 @@ function WordReference:addToMainMenu(menu_items)
 			{
 				text = "Configure Languages",
 				callback = function(button)
-					self:showLanguageSettings()
+					self:showLanguageSettings(self.ui)
 				end,
 				keep_menu_open = false,
 			},
@@ -163,7 +163,7 @@ function syncOverrideDictionaryQuickLookupChanged()
 	end
 end
 
-function WordReference:showLanguageSettings(close_callback)
+function WordReference:showLanguageSettings(ui, close_callback)
 	local settings_dialog
 
 	local data = Assets:getLanguagePairs()
@@ -185,7 +185,7 @@ function WordReference:showLanguageSettings(close_callback)
 		})
 	end
 
-	settings_dialog = Dialog:makeSettings(items)
+	settings_dialog = Dialog:makeSettings(ui, items)
 	UIManager:show(settings_dialog)
 end
 

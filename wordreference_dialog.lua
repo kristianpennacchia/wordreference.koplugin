@@ -15,14 +15,16 @@ local _ = require("gettext")
 
 local Dialog = {}
 
-function Dialog:makeSettings(items)
+function Dialog:makeSettings(ui, items)
 	local centered_container
+
+	local hasProjectTitlePlugin = ui["coverbrowser"] ~= nil and ui["coverbrowser"].fullname:find("Project")
 
 	local menu = Menu:new{
 		title = _("WordReference"),
 		item_table = items,
-		width = math.min(Screen:getWidth() * 0.6, Screen:scaleBySize(400)),
-		height = Screen:getHeight() * 0.9,
+		width = hasProjectTitlePlugin and Screen:getWidth() or math.min(Screen:getWidth() * 0.6, Screen:scaleBySize(400)),
+		height = hasProjectTitlePlugin and Screen:getHeight() or Screen:getHeight() * 0.9,
 		is_popout = false,
 		close_callback = function()
 			UIManager:close(centered_container)
@@ -64,7 +66,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
 		left_icon = "appbar.settings",
 		left_icon_tap_callback = function()
 			local WordReference = require("wordreference")
-			WordReference:showLanguageSettings(function()
+			WordReference:showLanguageSettings(ui, function()
 				UIManager:close(definition_dialog)
 				if close_callback then
 					close_callback()
