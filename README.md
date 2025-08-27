@@ -34,3 +34,7 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
   - Pick your desired translation (e.g., it→en, en→it, etc.).
 - Shortcut:
   - Also available directly from the definition popup via the ⚙️ button on the top-left.
+
+## Extras
+
+Checkout my other plugin, [Reader Menu Redesign](https://github.com/kristianpennacchia/zzz-readermenuredesign.koplugin) which redesigns some of the reader menus to look prettier.
