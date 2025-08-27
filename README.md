@@ -11,6 +11,8 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 ## Install
 
+- Download the [latest release](https://github.com/kristianpennacchia/wordreference.koplugin/releases/latest).
+- Unzip `wordreference.koplugin.zip`.
 - Copy the `wordreference.koplugin` folder to your KOReader `plugins` directory on the device.
 - Restart KOReader.
 
