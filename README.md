@@ -4,7 +4,7 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/fc82647e-5965-4ad9-b3ad-c52c4b3ded1b" width=45%>
+  <img src="https://github.com/user-attachments/assets/d6dcf619-65cc-4027-8be7-47941c7027f5" width=45%>
   <img src="https://github.com/user-attachments/assets/3184ec14-d38c-4d1c-915d-d0e3c0538b10" width=45%>
 </p>
 
