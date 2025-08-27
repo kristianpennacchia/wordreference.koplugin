@@ -166,17 +166,108 @@ local function extract_definition_tables(html, parent_open)
   return table.concat(chunks, "<br /><br />")
 end
 
--- Returns concatenated HTML of all definition tables.
+-- Returns the text content of the first <p class="wrcopyright">...</p>, or nil.
+local function get_copyright(html)
+  if type(html) ~= "string" then return nil end
+  local pos = 1
+  while true do
+	-- Find the next <p ...> opening tag (case-insensitive)
+	local p_start, p_gt, attrs = html:find("<%s*[Pp]%s*([^>]*)>", pos)
+	if not p_start then return nil end
+
+	-- Extract class attribute (supports "..." or '...' or unquoted)
+	local class_val = attrs:match('[Cc][Ll][Aa][Ss][Ss]%s*=%s*"(.-)"')
+				   or  attrs:match("[Cc][Ll][Aa][Ss][Ss]%s*=%s*'(.-)'")
+				   or  attrs:match("[Cc][Ll][Aa][Ss][Ss]%s*=%s*([^%s>]+)")
+
+	if class_val then
+	  local cls = (" " .. class_val:lower():gsub("%s+", " ") .. " ")
+	  if cls:find(" wrcopyright ", 1, true) then
+		-- Self-closing <p/> (unlikely): no inner text
+		if html:sub(p_gt - 1, p_gt - 1) == "/" or attrs:match("/%s*$") then
+		  return ""
+		end
+		-- Grab inner HTML up to the matching </p>
+		local c_start, c_end = html:find("</%s*[Pp]%s*>", p_gt + 1)
+		if not c_start then return nil end
+		local inner = html:sub(p_gt + 1, c_start - 1)
+
+		-- Strip comments and tags
+		inner = inner:gsub("<!--.-%-%->", "")
+					 :gsub("<[^>]->", "")
+
+		-- Decode a few common entities used on WR
+		inner = inner:gsub("&nbsp;", " ")
+					 :gsub("&amp;",  "&")
+					 :gsub("&lt;",   "<")
+					 :gsub("&gt;",   ">")
+					 :gsub("&quot;", '"')
+					 :gsub("&#39;",  "'")
+
+		-- Trim
+		inner = inner:gsub("^%s+", ""):gsub("%s+$", ""):gsub(":", "")
+		return inner
+	  end
+	end
+
+	pos = p_gt + 1
+  end
+end
+
+-- Remove ALL <p class="wrcopyright">...</p> blocks (case-insensitive).
+local function strip_all_wrcopyright_tags(html)
+  if type(html) ~= "string" or #html == 0 then return html end
+  local out, i = {}, 1
+  while true do
+	local lt = html:find("<", i, true)
+	if not lt then out[#out+1] = html:sub(i); break end
+	local tag = parse_tag(html, lt); if not tag then out[#out+1] = html:sub(i); break end
+
+	if tag.type == "open" and tag.name and tag.name:lower() == "p" and tag.class then
+	  local cls = (" " .. tag.class:lower():gsub("%s+", " ") .. " ")
+	  if cls:find(" wrcopyright ", 1, true) then
+		-- Skip this whole <p ...>...</p> block
+		local cut_to
+		if tag.self_close then
+		  cut_to = tag.stop + 1
+		else
+		  local close = find_matching_close(html, tag)
+		  cut_to = close and (close.stop + 1) or (tag.stop + 1)
+		end
+		out[#out+1] = html:sub(i, tag.start - 1)
+		i = cut_to
+	  else
+		out[#out+1] = html:sub(i, tag.stop)
+		i = tag.stop + 1
+	  end
+	else
+	  out[#out+1] = html:sub(i, tag.stop)
+	  i = tag.stop + 1
+	end
+  end
+  return table.concat(out)
+end
+
+-- Example:
+-- local html = fetch_somehow()
+-- local tag = first_wrcopyright_tag(html)
+-- print(tag or "not found")
+
+-- Returns concatenated HTML of all definition tables and the copyright.
 -- On failure: returns nil, error_message
 function HtmlParser.parse(html)
   if type(html) ~= "string" or #html == 0 then
-	return nil, "Empty HTML"
+	return nil, nil, "Empty HTML"
   end
+
+  local copyright = get_copyright(html)
+
+  html = strip_all_wrcopyright_tags(html)
 
   -- Find ALL #articleWRD containers (some pages have more than one)
   local parents = find_all_elements_with_id(html, "articleWRD")
   if not parents or #parents == 0 then
-	return nil, "Element with id='articleWRD' not found"
+	return nil, nil, "Element with id='articleWRD' not found"
   end
 
   -- Collect tables from each container (any depth)
@@ -187,10 +278,10 @@ function HtmlParser.parse(html)
   end
 
   if #parts == 0 then
-	return nil, "No <table> found under any #articleWRD"
+	return nil, nil, "No <table> found under any #articleWRD"
   end
 
-  return table.concat(parts)
+  return table.concat(parts), copyright, nil
 end
 
 return HtmlParser

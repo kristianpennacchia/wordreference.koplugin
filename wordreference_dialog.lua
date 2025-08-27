@@ -48,17 +48,18 @@ function Dialog:makeSettings(ui, items)
 	return centered_container
 end
 
-function Dialog:makeDefinition(ui, phrase, html_content, close_callback)
+function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callback)
 	local definition_dialog
 
 	local window_w = math.floor(Screen:getWidth() * 0.8)
 	local window_h = math.floor(Screen:getHeight() * 0.8)
 
 	local titlebar = TitleBar:new {
+		title = copyright,
 		width = window_w,
 		align = "left",
 		with_bottom_line = true,
-		title = phrase,
+		title_shrink_font_to_fit = true,
 		close_callback = function()
 			UIManager:close(definition_dialog)
 			if close_callback then

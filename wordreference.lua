@@ -203,7 +203,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		return
 	end
 
-	local html_content, parse_error = HtmlParser.parse(search_result.body)
+	local html_content, copyright, parse_error = HtmlParser.parse(search_result.body)
 	if not html_content then
 		print(string.format(_("HTML parsing error: %s"), parse_error))
 		UIManager:show(InfoMessage:new{ text = _("No results found on WordReference.") })
@@ -217,6 +217,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		ui,
 		phrase,
 		html_content,
+		copyright,
 		function()
 		if close_callback then
 			close_callback()
