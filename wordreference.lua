@@ -59,23 +59,33 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 		return false
 	end
 
+	local wordreferenceButton = {
+		id = "wordreference",
+		text = _("WordReference"),
+		callback = function()
+			NetworkMgr:runWhenOnline(function()
+				Trapper:wrap(function()
+					UIManager:close(dict_popup)
+					self:showDefinition(dict_popup.ui, dict_popup.word)
+				end)
+			end)
+		end
+	}
+
+	local hasReplacedCloseButton = false
 	for j = 1, #buttons do
 		for k = 1, #buttons[j] do
 			if buttons[j][k].id == "close" then
-				buttons[j][k] = {
-					id = "wordreference",
-					text = _("WordReference"),
-					callback = function()
-						NetworkMgr:runWhenOnline(function()
-							Trapper:wrap(function()
-								UIManager:close(dict_popup)
-								self:showDefinition(dict_popup.ui, dict_popup.word)
-							end)
-						end)
-					end
-				}
+				buttons[j][k] = wordreferenceButton
+				hasReplacedCloseButton = true
 			end
 		end
+	end
+
+	-- No close button for some reason. Add it to the last row instead.
+	if hasReplacedCloseButton == false then
+		local lastRow = buttons[#buttons]
+		table.insert(lastRow, 1, wordreferenceButton)
 	end
 
 	-- don't consume the event so that other listeners can handle `onDictButtonsReady` if they need to.
