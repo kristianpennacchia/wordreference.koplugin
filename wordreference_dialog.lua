@@ -11,6 +11,7 @@ local ButtonTable = require("ui/widget/buttontable")
 local Size = require("ui/size")
 local TitleBar = require("ui/widget/titlebar")
 local Assets = require("wordreference_assets")
+local DismissableInputContainer = require("dismissableinputcontainer")
 local Event = require("ui/event")
 local Translator = require("ui/translator")
 local _ = require("gettext")
@@ -18,7 +19,7 @@ local _ = require("gettext")
 local Dialog = {}
 
 function Dialog:makeSettings(ui, items)
-	local centered_container
+	local settings_dialog
 
 	local hasProjectTitlePlugin = ui["coverbrowser"] ~= nil and ui["coverbrowser"].fullname:find("Project")
 
@@ -29,11 +30,11 @@ function Dialog:makeSettings(ui, items)
 		height = hasProjectTitlePlugin and Screen:getHeight() or Screen:getHeight() * 0.9,
 		is_popout = false,
 		close_callback = function()
-			UIManager:close(centered_container)
+			UIManager:close(settings_dialog)
 		end
 	}
 
-	centered_container = CenterContainer:new{
+	local centered_container = CenterContainer:new{
 		dimen = {
 			x = 0,
 			y = 0,
@@ -43,9 +44,20 @@ function Dialog:makeSettings(ui, items)
 		menu,
 	}
 
-	menu.show_parent = centered_container
+	settings_dialog = DismissableInputContainer:new {
+		dimen = {
+			x = 0,
+			y = 0,
+			w = Screen:getWidth(),
+			h = Screen:getHeight()
+		},
+		centered_container,
+	}
+	settings_dialog.content_container = menu
 
-	return centered_container
+	menu.show_parent = settings_dialog
+
+	return settings_dialog
 end
 
 function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callback)
@@ -183,7 +195,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 		content_container,
 	}
 
-	definition_dialog = InputContainer:new {
+	definition_dialog = DismissableInputContainer:new {
 		dimen = {
 			x = 0,
 			y = 0,
@@ -192,6 +204,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 		},
 		centered_container,
 	}
+	definition_dialog.content_container = content_container
 
 	-- Ensure the HTML widget knows about its dialog for proper event handling
 	html_widget.dialog = definition_dialog
