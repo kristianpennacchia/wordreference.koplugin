@@ -229,10 +229,10 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		html_content,
 		copyright,
 		function()
-		if close_callback then
-			close_callback()
-		end
-	end)
+			if close_callback then
+				close_callback()
+			end
+		end)
 	UIManager:show(definition_dialog)
 end
 
