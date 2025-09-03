@@ -23,7 +23,7 @@ function Dialog:makeSettings(ui, items)
 
 	local hasProjectTitlePlugin = ui["coverbrowser"] ~= nil and ui["coverbrowser"].fullname:find("Project")
 
-	local menu = Menu:new{
+	local menu = Menu:new {
 		title = _("WordReference"),
 		item_table = items,
 		width = hasProjectTitlePlugin and Screen:getWidth() or math.min(Screen:getWidth() * 0.6, Screen:scaleBySize(400)),
@@ -34,7 +34,7 @@ function Dialog:makeSettings(ui, items)
 		end
 	}
 
-	local centered_container = CenterContainer:new{
+	local centered_container = CenterContainer:new {
 		dimen = {
 			x = 0,
 			y = 0,
@@ -100,7 +100,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 		end
 	end
 
-	local html_widget = ScrollHtmlWidget:new{
+	local html_widget = ScrollHtmlWidget:new {
 		html_body = string.format('<div class="wr">%s</div>', html_content),
 		css = Assets:getDefinitionTablesStylesheet(),
 		default_font_size = Screen:scaleBySize(14),
@@ -165,7 +165,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 
 	ui:handleEvent(Event:new("WordReferenceDefinitionButtonsReady", ui, bottom_buttons))
 
-	local button_table = ButtonTable:new{
+	local button_table = ButtonTable:new {
 		width = window_w,
 		buttons = bottom_buttons,
 		zero_sep = true,

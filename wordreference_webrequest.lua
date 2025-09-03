@@ -23,14 +23,14 @@ function http_get(url, headers)
 
 	local scheme = (url:match("^(https?)://") or "http"):lower()
 	local request = (scheme == "https" and Https and Https.request)
-				or (scheme == "http"  and Http  and Http.request)
+		or (scheme == "http" and Http and Http.request)
 
 	if not request then
 		return nil, "no HTTP client available for scheme: " .. scheme
 	end
 
 	local chunks = {}
-	local ok, code, resp_headers, status = request{
+	local ok, code, resp_headers, status = request {
 		url = url,
 		method = "GET",
 		headers = headers,
@@ -45,12 +45,12 @@ function http_get(url, headers)
 			local next_url = URL.absolute(url, loc) or loc
 			local next_scheme = (next_url:match("^(https?)://") or "http"):lower()
 			local next_request = (next_scheme == "https" and Https and Https.request)
-							or (next_scheme == "http"  and Http  and Http.request)
+				or (next_scheme == "http" and Http and Http.request)
 			if not next_request then
 				return nil, "no HTTP client available for scheme: " .. next_scheme
 			end
 			chunks = {}
-			ok, code, resp_headers, status = next_request{
+			ok, code, resp_headers, status = next_request {
 				url = next_url,
 				method = "GET",
 				headers = headers,

@@ -51,7 +51,7 @@ function WordReference:save_lang_settings(from_lang, to_lang)
 end
 
 function WordReference:onDispatcherRegisterActions()
-	Dispatcher:registerAction("wordreference_action", {category="none", event="Close", title=_("Word Reference"), general=true,})
+	Dispatcher:registerAction("wordreference_action", { category = "none", event = "Close", title = _("Word Reference"), general = true, })
 end
 
 function WordReference:onDictButtonsReady(dict_popup, buttons)
@@ -182,7 +182,7 @@ function WordReference:showLanguageSettings(ui, close_callback)
 	local items = {}
 	for i, pair in ipairs(jsonArray) do
 		local isActive = (pair.from_lang == self:get_lang_settings().from_lang
-					and pair.to_lang == self:get_lang_settings().to_lang)
+			and pair.to_lang == self:get_lang_settings().to_lang)
 		local indicator = isActive and "☑" or "☐"
 		table.insert(items, {
 			text = _(indicator .. " " .. pair.label),
@@ -206,7 +206,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
 
 	if not search_result or tonumber(search_result.status) ~= 200 then
-		UIManager:show(InfoMessage:new{ text = string.format(_("WordReference error: %s"), search_error or (search_result and search_result.status_line) or _("unknown")) })
+		UIManager:show(InfoMessage:new { text = string.format(_("WordReference error: %s"), search_error or (search_result and search_result.status_line) or _("unknown")) })
 		if close_callback then
 			close_callback()
 		end
@@ -216,7 +216,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 	local html_content, copyright, parse_error = HtmlParser.parse(search_result.body)
 	if not html_content then
 		print(string.format(_("HTML parsing error: %s"), parse_error))
-		UIManager:show(InfoMessage:new{ text = _("No results found on WordReference.") })
+		UIManager:show(InfoMessage:new { text = _("No results found on WordReference.") })
 		if close_callback then
 			close_callback()
 		end

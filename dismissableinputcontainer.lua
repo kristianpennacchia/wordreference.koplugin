@@ -5,13 +5,13 @@ local Screen = Device.screen
 local GestureRange = require("ui/gesturerange")
 local UIManager = require("ui/uimanager")
 
-local DismissableInputContainer = InputContainer:extend{
+local DismissableInputContainer = InputContainer:extend {
 	content_container = nil,
 }
 
 function DismissableInputContainer:init()
 	if Device:isTouchDevice() then
-		local range = Geom:new{
+		local range = Geom:new {
 			x = 0,
 			y = 0,
 			w = Screen:getWidth(),
@@ -20,7 +20,7 @@ function DismissableInputContainer:init()
 
 		self.ges_events = self.ges_events or {}
 		self.ges_events.Tap = {
-			GestureRange:new{
+			GestureRange:new {
 				ges = "tap",
 				range = range,
 			},
@@ -29,8 +29,8 @@ function DismissableInputContainer:init()
 end
 
 local function point_inside_rect(x, y, rect)
-  return x >= rect.x and x < (rect.x + rect.w)
-	 and y >= rect.y and y < (rect.y + rect.h)
+	return x >= rect.x and x < (rect.x + rect.w)
+		and y >= rect.y and y < (rect.y + rect.h)
 end
 
 function DismissableInputContainer:onTap(arg, ges_ev)
