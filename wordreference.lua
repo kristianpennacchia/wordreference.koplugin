@@ -66,7 +66,13 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 			NetworkMgr:runWhenOnline(function()
 				Trapper:wrap(function()
 					UIManager:close(dict_popup)
-					self:showDefinition(dict_popup.ui, dict_popup.word)
+					self:showDefinition(dict_popup.ui, dict_popup.word, function()
+						UIManager:scheduleIn(0.5, function()
+							if not dict_popup.ui.highlight.highlight_dialog or not UIManager:isWidgetShown(dict_popup.ui.highlight.highlight_dialog) then
+       							dict_popup.ui.highlight:clear()
+			                end
+                		end)
+					end)
 				end)
 			end)
 		end

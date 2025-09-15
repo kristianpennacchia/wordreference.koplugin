@@ -205,6 +205,11 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 		centered_container,
 	}
 	definition_dialog.content_container = content_container
+	definition_dialog.close_callback = function()
+		if close_callback then
+			close_callback()
+		end
+	end
 
 	-- Ensure the HTML widget knows about its dialog for proper event handling
 	html_widget.dialog = definition_dialog

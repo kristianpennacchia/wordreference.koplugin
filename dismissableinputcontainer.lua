@@ -7,6 +7,7 @@ local UIManager = require("ui/uimanager")
 
 local DismissableInputContainer = InputContainer:extend {
 	content_container = nil,
+	close_callback = nil,
 }
 
 function DismissableInputContainer:init()
@@ -40,6 +41,9 @@ function DismissableInputContainer:onTap(arg, ges_ev)
 
 	if not point_inside_rect(ges_ev.pos.x, ges_ev.pos.y, self.content_container.dimen) then
 		UIManager:close(self)
+		if self.close_callback then
+			self:close_callback()
+		end
 		return true
 	end
 
