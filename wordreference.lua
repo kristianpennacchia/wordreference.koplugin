@@ -29,18 +29,21 @@ function WordReference:init()
 end
 
 function WordReference:get_override_dictionary_quick_lookup()
-	return G_reader_settings:readSetting("wordreference_override_dictionary_quick_lookup") or false
+	return G_reader_settings:isTrue("wordreference_override_dictionary_quick_lookup")
 end
 
-function WordReference:save_override_dictionary_quick_lookup(should_override)
-	G_reader_settings:saveSetting("wordreference_override_dictionary_quick_lookup", should_override)
+function WordReference:toggle_override_dictionary_quick_lookup()
+	local newValue = not self:get_override_dictionary_quick_lookup()
+	G_reader_settings:saveSetting("wordreference_override_dictionary_quick_lookup", newValue)
+end
 end
 
 function WordReference:get_lang_settings()
-	return G_reader_settings:readSetting("wordreference_languages") or {
+	local default = {
 		from_lang = "it",
 		to_lang = "en",
 	}
+	return G_reader_settings:readSetting("wordreference_languages") or default
 end
 
 function WordReference:save_lang_settings(from_lang, to_lang)
@@ -130,8 +133,7 @@ function WordReference:addToMainMenu(menu_items)
 					return WordReference:get_override_dictionary_quick_lookup()
 				end,
 				callback = function(button)
-					local newValue = self:get_override_dictionary_quick_lookup() == false
-					self:save_override_dictionary_quick_lookup(newValue)
+					self:toggle_override_dictionary_quick_lookup()
 					syncOverrideDictionaryQuickLookupChanged()
 				end,
 			},
