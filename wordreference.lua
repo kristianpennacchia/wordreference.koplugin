@@ -36,6 +36,14 @@ function WordReference:toggle_override_dictionary_quick_lookup()
 	local newValue = not self:get_override_dictionary_quick_lookup()
 	G_reader_settings:saveSetting("wordreference_override_dictionary_quick_lookup", newValue)
 end
+
+function WordReference:get_auto_detect_languages()
+	return G_reader_settings:nilOrTrue("wordreference_auto_detect_languages")
+end
+
+function WordReference:toggle_auto_detect_languages()
+	local newValue = not self:get_auto_detect_languages()
+	G_reader_settings:saveSetting("wordreference_auto_detect_languages", newValue)
 end
 
 function WordReference:get_lang_settings()
@@ -138,6 +146,15 @@ function WordReference:addToMainMenu(menu_items)
 				end,
 			},
 			{
+				text = "Auto-Detect Languages",
+				checked_func = function()
+					return WordReference:get_auto_detect_languages()
+				end,
+				callback = function(button)
+					self:toggle_auto_detect_languages()
+				end,
+			},
+			{
 				text = "Configure Languages",
 				callback = function(button)
 					self:showLanguageSettings(self.ui)
@@ -210,7 +227,22 @@ end
 
 function WordReference:showDefinition(ui, phrase, close_callback)
 	local search_error, search_result = Trapper:dismissableRunInSubprocess(function()
-		return WebRequest.search(phrase, self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
+		local book_lang
+		if ui.doc_props then
+			book_lang = (ui.doc_props.language or ""):lower():sub(1, 2)
+		end
+
+		local device_lang = (G_reader_settings:readSetting("language") or ""):lower():sub(1, 2)
+		if device_lang == "c" then
+			device_lang = "en"
+		end
+
+		if self:get_auto_detect_languages() and book_lang:len() > 0 and device_lang:len() > 0 then
+			return WebRequest.search(phrase, book_lang, device_lang)
+		else
+			local langSettings = self:get_lang_settings()
+			return WebRequest.search(phrase, langSettings.from_lang, langSettings.to_lang)
+		end
 	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
 
 	if not search_result or tonumber(search_result.status) ~= 200 then
