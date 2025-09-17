@@ -245,7 +245,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		end
 	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
 
-	if not search_result or tonumber(search_result.status) ~= 200 then
+	if not search_result or (tonumber(search_result.status) ~= 200 and tonumber(search_result.status) ~= 404) then
 		UIManager:show(InfoMessage:new { text = string.format(_("WordReference error: %s"), search_error or (search_result and search_result.status_line) or _("unknown")) })
 		if close_callback then
 			close_callback()
