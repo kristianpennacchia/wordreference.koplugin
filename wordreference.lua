@@ -232,7 +232,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 			book_lang = (ui.doc_props.language or ""):lower():sub(1, 2)
 		end
 
-		local device_lang = (G_reader_settings:readSetting("language") or ""):lower():sub(1, 2)
+		local device_lang = (G_reader_settings:readSetting("language") or "en"):lower():sub(1, 2)
 		if device_lang == "c" then
 			device_lang = "en"
 		end
