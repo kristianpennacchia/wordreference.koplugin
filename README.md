@@ -3,9 +3,10 @@
 Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/d6dcf619-65cc-4027-8be7-47941c7027f5" width=30%>
-  <img src="https://github.com/user-attachments/assets/3184ec14-d38c-4d1c-915d-d0e3c0538b10" width=30%>
-	<img src="https://github.com/user-attachments/assets/77ada939-7b08-4542-b089-a830264af939" width=30%>
+	<img src="https://github.com/user-attachments/assets/d6dcf619-65cc-4027-8be7-47941c7027f5" width=24%>
+	<img src="https://github.com/user-attachments/assets/3184ec14-d38c-4d1c-915d-d0e3c0538b10" width=24%>
+	<img src="https://github.com/user-attachments/assets/77ada939-7b08-4542-b089-a830264af939" width=24%>
+	<img src="https://github.com/user-attachments/assets/bb89a00d-fc2e-4ca1-a233-9cdbcd7d1f5d" width=24%>
 </p>
 
 ## Install
@@ -27,17 +28,24 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 ## Settings
 
-- Quick Lookup:
-  - Open Menu → Tools 🛠️ → More tools → WordReference → Override Dictionary Quick Lookup.
+Plugin settings can be accessed via Menu → Tools 🛠️ → More tools → WordReference.
+  
+  → Override Dictionary Quick Lookup
   - This will override the dictionary quick lookup feature that is enabled with the KOReader setting `Dictionary on single word selection`. If this setting is disabled, then this override will do nothing.
-- Auto-Detect languages:
-    - Open Menu → Tools 🛠️ → More tools → WordReference → Auto-Detect Languages.
-    - This will attempt to auto-detect the language of the book and the language used for KOReader, and use this to perform the WordReference lookup.
-- Manual language selection:
-  - Open Menu → Tools 🛠️ → More tools → WordReference → Configure Languages.
+	
+  → Auto-Detect Languages
+  - This will attempt to auto-detect the language of the book and the language used for KOReader, and use this to perform the WordReference lookup.
+
+  → Configure Languages
   - Pick your desired translation (e.g., it→en, en→it, etc.).
-  - Shortcut:
-  	- Also available directly from the definition popup via the ⚙️ button on the top-left.
+
+Quick settings can be accessed via the ⚙️ button on the top-left of the WordReference definition popup.
+  
+  → Font size
+  - Change the font size used to display the WordReference definitions.
+
+  → Configure Languages
+  - Pick your desired translation (e.g., it→en, en→it, etc.).
 
 ## Extras
 
