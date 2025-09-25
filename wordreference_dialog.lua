@@ -259,6 +259,7 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
             align = "left",
             callback = function()
                 UIManager:close(quick_settings_dialog)
+
                 local SpinWidget = require("ui/widget/spinwidget")
                 local widget = SpinWidget:new{
                     title_text = "Font size",
@@ -281,6 +282,8 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
             text = "Configure Languages",
             align = "left",
             callback = function()
+            	UIManager:close(quick_settings_dialog)
+
 				WordReference:showLanguageSettings(ui, nil, function()
 					UIManager:close(quick_settings_dialog)
 					if close_callback then
