@@ -6,36 +6,32 @@ local LTN12 = require("ltn12")
 local WebRequest = {}
 
 function WebRequest.search(query, from_lang, to_lang)
-	local url = build_url(query, from_lang, to_lang)
-	return http_get(url)
+	local url = WebRequest:build_url(query, from_lang, to_lang)
+	return WebRequest:http_get(url)
 end
 
-function build_url(query, from_lang, to_lang)
+function WebRequest:build_url(query, from_lang, to_lang)
 	return string.format("https://www.wordreference.com/%s%s/%s", from_lang, to_lang, URL.escape(query))
 end
 
-function http_get(url, headers)
+function WebRequest:http_get(url, headers)
 	headers = headers or {
 		["User-Agent"] = "KOReader-WordReference/0.1",
 		["Accept"] = "text/html",
 		["Accept-Language"] = "en",
 	}
 
-	local scheme = (url:match("^(https?)://") or "http"):lower()
-	local request = (scheme == "https" and Https and Https.request)
-		or (scheme == "http" and Http and Http.request)
-
-	if not request then
-		return nil, "no HTTP client available for scheme: " .. scheme
-	end
-
 	local chunks = {}
-	local ok, code, resp_headers, status = request {
-		url = url,
-		method = "GET",
-		headers = headers,
-		sink = LTN12.sink.table(chunks),
-	}
+	local ok_pcall, ok, code, resp_headers, status = pcall(function()
+		return Https.request {
+			url = url,
+			method = "GET",
+			headers = headers,
+			sink = LTN12.sink.table(chunks),
+		}
+	end)
+
+	if not ok_pcall then return nil, tostring(code or "request error") end
 	if not ok then return nil, tostring(code or "request error") end
 
 	-- Check for redirect.

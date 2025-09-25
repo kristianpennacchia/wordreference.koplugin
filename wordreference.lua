@@ -232,27 +232,33 @@ function WordReference:showLanguageSettings(ui, close_callback)
 end
 
 function WordReference:showDefinition(ui, phrase, close_callback)
-	local search_error, search_result = Trapper:dismissableRunInSubprocess(function()
-		local book_lang
-		if ui.doc_props then
-			book_lang = (ui.doc_props.language or ""):lower():sub(1, 2)
-		end
+	local book_lang
+	if ui.doc_props then
+		book_lang = (ui.doc_props.language or ""):lower():sub(1, 2)
+	end
 
-		local device_lang = (G_reader_settings:readSetting("language") or "en"):lower():sub(1, 2)
-		if device_lang == "c" then
-			device_lang = "en"
-		end
+	local device_lang = (G_reader_settings:readSetting("language") or "en"):lower():sub(1, 2)
+	if device_lang == "c" then
+		device_lang = "en"
+	end
 
-		if self:get_auto_detect_languages() and book_lang:len() > 0 and device_lang:len() > 0 then
-			return WebRequest.search(phrase, book_lang, device_lang)
-		else
-			local langSettings = self:get_lang_settings()
-			return WebRequest.search(phrase, langSettings.from_lang, langSettings.to_lang)
-		end
-	end, string.format(_("Looking up ‘%s’ on WordReference…"), phrase))
+	local from_lang
+	local to_lang
+	if self:get_auto_detect_languages() and book_lang:len() > 0 and device_lang:len() > 0 then
+		from_lang = book_lang
+		to_lang = device_lang
+	else
+		local langSettings = self:get_lang_settings()
+		from_lang = langSettings.from_lang
+		to_lang = langSettings.to_lang
+	end
+
+	local completed, search_result, search_error = Trapper:dismissableRunInSubprocess(function()
+		return WebRequest.search(phrase, from_lang, to_lang)
+	end, string.format("Looking up ‘%s’ on WordReference…", phrase))
 
 	if not search_result or (tonumber(search_result.status) ~= 200 and tonumber(search_result.status) ~= 404) then
-		UIManager:show(InfoMessage:new { text = string.format(_("WordReference error: %s"), search_error or (search_result and search_result.status_line) or _("unknown")) })
+		UIManager:show(InfoMessage:new { text = string.format("WordReference error (%s → %s):\n%s", from_lang, to_lang, search_error or (search_result and search_result.status_line) or "unknown") })
 		if close_callback then
 			close_callback()
 		end
@@ -261,8 +267,8 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 
 	local html_content, copyright, parse_error = HtmlParser.parse(search_result.body)
 	if not html_content then
-		print(string.format(_("HTML parsing error: %s"), parse_error))
-		UIManager:show(InfoMessage:new { text = _("No results found on WordReference.") })
+		print(string.format("HTML parsing error: %s", parse_error))
+		UIManager:show(InfoMessage:new { text = string.format("No results found on WordReference\n(%s → %s)", from_lang, to_lang) })
 		if close_callback then
 			close_callback()
 		end
