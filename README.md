@@ -28,7 +28,9 @@ Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 ## Settings
 
-Plugin settings can be accessed via Menu → Tools 🛠️ → More tools → WordReference.
+#### Plugin settings
+
+Can be accessed via Menu → Tools 🛠️ → More tools → WordReference.
   
   → Override Dictionary Quick Lookup
   - This will override the dictionary quick lookup feature that is enabled with the KOReader setting `Dictionary on single word selection`. If this setting is disabled, then this override will do nothing.
@@ -39,7 +41,11 @@ Plugin settings can be accessed via Menu → Tools 🛠️ → More tools → Wo
   → Configure Languages
   - Pick your desired translation (e.g., it→en, en→it, etc.).
 
-Quick settings can be accessed via the ⚙️ button on the top-left of the WordReference definition popup.
+-----
+
+#### Quick settings
+
+Can be accessed via the ⚙️ button on the top-left of the WordReference definition popup.
   
   → Font size
   - Change the font size used to display the WordReference definitions.
