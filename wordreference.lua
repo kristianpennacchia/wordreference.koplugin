@@ -61,6 +61,14 @@ function WordReference:save_lang_settings(from_lang, to_lang)
 	})
 end
 
+function WordReference:get_font_size()
+	return G_reader_settings:readSetting("wordreference_font_size") or 14
+end
+
+function WordReference:save_font_size(font_size)
+	G_reader_settings:saveSetting("wordreference_font_size", font_size)
+end
+
 function WordReference:onDispatcherRegisterActions()
 	Dispatcher:registerAction("wordreference_action", { category = "none", event = "Close", title = _("Word Reference"), general = true, })
 end
@@ -205,7 +213,7 @@ function syncOverrideDictionaryQuickLookupChanged()
 	end
 end
 
-function WordReference:showLanguageSettings(ui, close_callback)
+function WordReference:showLanguageSettings(ui, close_callback, changed_languages_callback)
 	local settings_dialog
 
 	local data = Assets:getLanguagePairs()
@@ -220,15 +228,20 @@ function WordReference:showLanguageSettings(ui, close_callback)
 			callback = function()
 				self:save_lang_settings(pair.from_lang, pair.to_lang)
 				UIManager:close(settings_dialog)
-				if close_callback then
-					close_callback()
+				if changed_languages_callback then
+					changed_languages_callback()
 				end
 			end,
 		})
 	end
 
-	settings_dialog = Dialog:makeSettings(ui, items)
+	settings_dialog = Dialog:makeSettings(ui, items, close_callback)
 	UIManager:show(settings_dialog)
+end
+
+function WordReference:showQuickSettings(ui, anchor, close_callback, changed_font_callback)
+	local quick_settings_dialog = Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_font_callback)
+	UIManager:show(quick_settings_dialog)
 end
 
 function WordReference:showDefinition(ui, phrase, close_callback)

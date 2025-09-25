@@ -5,7 +5,6 @@ local UIManager = require("ui/uimanager")
 local Menu = require("ui/widget/menu")
 local CenterContainer = require("ui/widget/container/centercontainer")
 local FrameContainer = require("ui/widget/container/framecontainer")
-local InputContainer = require("ui/widget/container/inputcontainer")
 local VerticalGroup = require("ui/widget/verticalgroup")
 local ButtonTable = require("ui/widget/buttontable")
 local Size = require("ui/size")
@@ -14,13 +13,13 @@ local Assets = require("wordreference_assets")
 local DismissableInputContainer = require("dismissableinputcontainer")
 local Event = require("ui/event")
 local Translator = require("ui/translator")
+local ButtonDialog = require("ui/widget/buttondialog")
 local _ = require("gettext")
 
 local Dialog = {}
 
-function Dialog:makeSettings(ui, items)
+function Dialog:makeSettings(ui, items, close_callback)
 	local settings_dialog
-
 	local hasProjectTitlePlugin = ui["coverbrowser"] ~= nil and ui["coverbrowser"].fullname:find("Project")
 
 	local menu = Menu:new {
@@ -31,6 +30,9 @@ function Dialog:makeSettings(ui, items)
 		is_popout = false,
 		close_callback = function()
 			UIManager:close(settings_dialog)
+			if close_callback then
+				close_callback()
+			end
 		end
 	}
 
@@ -54,6 +56,11 @@ function Dialog:makeSettings(ui, items)
 		centered_container,
 	}
 	settings_dialog.content_container = menu
+	settings_dialog.close_callback = function()
+		if close_callback then
+			close_callback()
+		end
+	end
 
 	menu.show_parent = settings_dialog
 
@@ -62,11 +69,13 @@ end
 
 function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callback)
 	local definition_dialog
+	local html_widget
 
 	local window_w = math.floor(Screen:getWidth() * 0.8)
 	local window_h = math.floor(Screen:getHeight() * 0.8)
 
-	local titlebar = TitleBar:new {
+	local titlebar
+	titlebar = TitleBar:new {
 		title = copyright,
 		width = window_w,
 		align = "left",
@@ -81,12 +90,25 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 		left_icon = "appbar.settings",
 		left_icon_tap_callback = function()
 			local WordReference = require("wordreference")
-			WordReference:showLanguageSettings(ui, function()
-				UIManager:close(definition_dialog)
-				if close_callback then
-					close_callback()
+			WordReference:showQuickSettings(
+				ui,
+				titlebar.left_button.image.dimen,
+				function()
+					UIManager:close(definition_dialog)
+					if close_callback then
+						close_callback()
+					end
+				end,
+				function()
+					-- Note: Reloading the HTML widget was done based off of the following code:
+					-- https://github.com/koreader/koreader/blob/d71d1348441102418d9dbecaa043dc1b4256a39d/frontend/ui/widget/dictquicklookup.lua#L964
+					html_widget:free()
+					html_widget.default_font_size = Screen:scaleBySize(WordReference:get_font_size())
+					html_widget.htmlbox_widget:setContent(html_widget.html_body, html_widget.css, html_widget.default_font_size, html_widget.is_xhtml, nil, html_widget.html_resource_directory)
+					html_widget:resetScroll()
+					UIManager:setDirty(definition_dialog, "full")
 				end
-			end)
+			)
 		end,
 		show_parent = self,
 	}
@@ -100,10 +122,12 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 		end
 	end
 
-	local html_widget = ScrollHtmlWidget:new {
+	local WordReference = require("wordreference")
+
+	html_widget = ScrollHtmlWidget:new {
 		html_body = string.format('<div class="wr">%s</div>', html_content),
 		css = Assets:getDefinitionTablesStylesheet(),
-		default_font_size = Screen:scaleBySize(14),
+		default_font_size = Screen:scaleBySize(WordReference:get_font_size()),
 		width = window_w,
 		height = available_height,
 	}
@@ -222,6 +246,58 @@ function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callba
 	end
 
 	return definition_dialog
+end
+
+function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_font_callback)
+	local WordReference = require("wordreference")
+	local quick_settings_dialog
+    local buttons = {
+        {{
+            text_func = function()
+                return "Font size: " .. WordReference:get_font_size()
+            end,
+            align = "left",
+            callback = function()
+                UIManager:close(quick_settings_dialog)
+                local SpinWidget = require("ui/widget/spinwidget")
+                local widget = SpinWidget:new{
+                    title_text = "Font size",
+                    value = WordReference:get_font_size(),
+                    value_min = 10,
+                    value_max = 30,
+                    default_value = 14,
+                    keep_shown_on_apply = true,
+                    callback = function(spin)
+                    	WordReference:save_font_size(spin.value)
+                    	if changed_font_callback then
+                     		changed_font_callback()
+                     	end
+                    end,
+                }
+                UIManager:show(widget)
+            end,
+        }},
+        {{
+            text = "Configure Languages",
+            align = "left",
+            callback = function()
+				WordReference:showLanguageSettings(ui, nil, function()
+					UIManager:close(quick_settings_dialog)
+					if close_callback then
+						close_callback()
+					end
+				end)
+            end,
+        }},
+    }
+    quick_settings_dialog = ButtonDialog:new{
+        shrink_unneeded_width = true,
+        buttons = buttons,
+        anchor = function()
+            return anchor
+        end,
+    }
+    UIManager:show(quick_settings_dialog)
 end
 
 return Dialog
