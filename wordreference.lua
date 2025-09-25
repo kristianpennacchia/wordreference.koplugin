@@ -117,8 +117,14 @@ function WordReference:addToHighlightDialog()
 	-- 12_search is the last item in the highlight dialog. We want to sneak in the 'WordReference' item
 	-- second to last, thus name '11_wordreference' so the alphabetical sort keeps '12_search' last.
 	self.ui.highlight:addToHighlightDialog("11_wordreference", function(this)
+		local text
+		if self:get_auto_detect_languages() then
+			text = "WordReference (auto-detect)"
+		else
+			text = string.format("WordReference (%s → %s)", self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
+		end
 		return {
-			text = string.format(_("WordReference (%s → %s)"), self:get_lang_settings().from_lang, self:get_lang_settings().to_lang),
+			text = text,
 			callback = function()
 				NetworkMgr:runWhenOnline(function()
 					Trapper:wrap(function()
