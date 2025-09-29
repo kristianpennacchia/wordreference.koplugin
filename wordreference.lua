@@ -146,8 +146,8 @@ end
 
 function WordReference:addToMainMenu(menu_items)
 	menu_items.wordreference = {
-		text = "WordReference",
-		sorting_hint = "more_tools",
+		text = "WordReference settings",
+		sorting_hint = "search_settings",
 		sub_item_table = {
 			{
 				text = "Override Dictionary Quick Lookup",
