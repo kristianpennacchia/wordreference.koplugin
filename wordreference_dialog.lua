@@ -67,16 +67,16 @@ function Dialog:makeSettings(ui, items, close_callback)
 	return settings_dialog
 end
 
-function Dialog:makeDefinition(ui, phrase, html_content, copyright, close_callback)
+function Dialog:makeDefinition(ui, phrase, html_content, title, large_size, close_callback)
 	local definition_dialog
 	local html_widget
 
 	local window_w = math.floor(Screen:getWidth() * 0.8)
-	local window_h = math.floor(Screen:getHeight() * 0.8)
+	local window_h = math.floor(Screen:getHeight() * (large_size and 0.7 or 0.4))
 
 	local titlebar
 	titlebar = TitleBar:new {
-		title = copyright,
+		title = title,
 		width = window_w,
 		align = "left",
 		with_bottom_line = true,

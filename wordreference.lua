@@ -279,13 +279,15 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 	end
 
 	local html_content, copyright, parse_error = HtmlParser.parse(search_result.body)
+	local large_size = true
 	if not html_content then
-		print(string.format("HTML parsing error: %s", parse_error))
-		UIManager:show(InfoMessage:new { text = string.format("No results found on WordReference\n(%s → %s)", from_lang, to_lang) })
-		if close_callback then
-			close_callback()
+		html_content = string.format([[
+<h1>No results found for <em>'%s'</em> (%s &rarr; %s)</h1>
+]], phrase, from_lang, to_lang)
+		if not copyright then
+			copyright = "WordReference"
 		end
-		return
+		large_size = false
 	end
 
 	local definition_dialog = Dialog:makeDefinition(
@@ -293,6 +295,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		phrase,
 		html_content,
 		copyright,
+		large_size,
 		function()
 			if close_callback then
 				close_callback()
