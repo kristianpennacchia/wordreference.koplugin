@@ -310,6 +310,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 			large_size = false
 		else
 			html_content = wr_html_content
+			copyright = wr_copyright
 		end
 	end
 
