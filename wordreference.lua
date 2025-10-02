@@ -6,6 +6,7 @@ local WebRequest = require("wordreference_webrequest")
 local HtmlParser = require("wordreference_htmlparser")
 local Assets = require("wordreference_assets")
 local Dialog = require("wordreference_dialog")
+local Update = require("wordreference_update")
 local Json = require("json")
 local NetworkMgr = require("ui/network/manager")
 local Trapper = require("ui/trapper")
@@ -18,6 +19,7 @@ local WordReference = WidgetContainer:extend {
 }
 
 function WordReference:init()
+	WORDREFERENCE_PATH = self.path
 	self:onDispatcherRegisterActions()
 	self.ui.menu:registerToMainMenu(self)
 
@@ -172,6 +174,13 @@ function WordReference:addToMainMenu(menu_items)
 				text = "Configure Languages",
 				callback = function(button)
 					self:showLanguageSettings(self.ui)
+				end,
+				keep_menu_open = false,
+			},
+			{
+				text = "Check for updates...",
+				callback = function(button)
+					Update:update()
 				end,
 				keep_menu_open = false,
 			},

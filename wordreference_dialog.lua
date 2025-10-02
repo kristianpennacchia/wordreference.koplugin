@@ -303,4 +303,14 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
     UIManager:show(quick_settings_dialog)
 end
 
+function Dialog:makeReleaseNotes(release)
+	local TextViewer = require("ui/widget/textviewer")
+    UIManager:show(TextViewer:new{
+        title = release.name,
+        text = release.body,
+        text_type = "general",
+        height = math.floor(Screen:getHeight() * 0.6),
+    })
+end
+
 return Dialog

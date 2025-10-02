@@ -14,12 +14,19 @@ function WebRequest:build_url(query, from_lang, to_lang)
 	return string.format("https://www.wordreference.com/%s%s/%s", from_lang, to_lang, URL.escape(query))
 end
 
-function WebRequest:http_get(url, headers)
-	headers = headers or {
-		["User-Agent"] = "KOReader-WordReference/0.1",
+function WebRequest:http_get(url, additional_headers)
+	local current_version = require("wordreference_version")
+	local headers = {
+		["User-Agent"] = "KOReader-WordReference/" .. current_version,
 		["Accept"] = "text/html",
 		["Accept-Language"] = "en",
 	}
+
+	if additional_headers then
+		for k, v in pairs(additional_headers) do
+			headers[k] = v
+		end
+	end
 
 	local chunks = {}
 	local ok_pcall, ok, code, resp_headers, status = pcall(function()
