@@ -44,7 +44,7 @@ function WordReference:init()
 				end,
 			},
 			{
-				text = "Auto-Detect Languages",
+				text = "Auto-Detect languages",
 				checked_func = function()
 					return WordReference:get_auto_detect_languages()
 				end,
@@ -53,7 +53,7 @@ function WordReference:init()
 				end,
 			},
 			{
-				text = "Configure Languages",
+				text = "Configure languages",
 				callback = function(button)
 					self:showLanguageSettings(self.ui)
 				end,
