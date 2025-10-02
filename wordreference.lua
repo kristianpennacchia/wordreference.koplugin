@@ -279,24 +279,36 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		return WebRequest.search(phrase, from_lang, to_lang)
 	end, string.format("Looking up ‘%s’ on WordReference…", phrase))
 
+	local html_content
+	local copyright
+	local large_size = true
+	local didError = false
+
 	if not search_result or (tonumber(search_result.status) ~= 200 and tonumber(search_result.status) ~= 404) then
-		UIManager:show(InfoMessage:new { text = string.format("WordReference error (%s → %s):\n%s", from_lang, to_lang, search_error or (search_result and search_result.status_line) or "unknown") })
-		if close_callback then
-			close_callback()
-		end
-		return
+		html_content = string.format([[
+<h3>Encountered an error (%s → %s):</h3>
+<p>%s</p>
+]], from_lang, to_lang, search_error or (search_result and search_result.status_line) or "unknown")
+		copyright = "WordReference"
+		large_size = false
+		didError = true
 	end
 
-	local html_content, copyright, parse_error = HtmlParser.parse(search_result.body)
-	local large_size = true
-	if not html_content then
-		html_content = string.format([[
-<h1>No results found for <em>'%s'</em> (%s &rarr; %s)</h1>
-]], phrase, from_lang, to_lang)
-		if not copyright then
-			copyright = "WordReference"
+	if not didError then
+		local wr_html_content, wr_copyright, parse_error = HtmlParser.parse(search_result.body)
+		if not wr_html_content then
+			html_content = string.format([[
+	<h1>No results found for <em>'%s'</em> (%s &rarr; %s)</h1>
+	]], phrase, from_lang, to_lang)
+			if not wr_copyright then
+				copyright = "WordReference"
+			else
+				copyright = wr_copyright
+			end
+			large_size = false
+		else
+			html_content = wr_html_content
 		end
-		large_size = false
 	end
 
 	local definition_dialog = Dialog:makeDefinition(
