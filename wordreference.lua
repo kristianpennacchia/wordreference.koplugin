@@ -1,5 +1,4 @@
 local Dispatcher = require("dispatcher")
-local InfoMessage = require("ui/widget/infomessage")
 local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local WebRequest = require("wordreference_webrequest")
@@ -16,6 +15,7 @@ local WordReference = WidgetContainer:extend {
 	name = "wordreference",
 	is_doc_only = false,
 	show_highlight_dialog_button = true,
+	menu_item = nil,
 }
 
 function WordReference:init()
@@ -28,6 +28,46 @@ function WordReference:init()
 	end
 
 	syncOverrideDictionaryQuickLookupChanged()
+
+	self.menu_item = {
+		text = "WordReference settings",
+		sorting_hint = "search_settings",
+		sub_item_table = {
+			{
+				text = "Override Dictionary Quick Lookup",
+				checked_func = function()
+					return WordReference:get_override_dictionary_quick_lookup()
+				end,
+				callback = function(button)
+					self:toggle_override_dictionary_quick_lookup()
+					syncOverrideDictionaryQuickLookupChanged()
+				end,
+			},
+			{
+				text = "Auto-Detect Languages",
+				checked_func = function()
+					return WordReference:get_auto_detect_languages()
+				end,
+				callback = function(button)
+					self:toggle_auto_detect_languages()
+				end,
+			},
+			{
+				text = "Configure Languages",
+				callback = function(button)
+					self:showLanguageSettings(self.ui)
+				end,
+				keep_menu_open = false,
+			},
+			{
+				text = "Check for updates...",
+				callback = function(button)
+					Update:update()
+				end,
+				keep_menu_open = false,
+			},
+		},
+	}
 end
 
 function WordReference:get_override_dictionary_quick_lookup()
@@ -147,45 +187,7 @@ function WordReference:addToHighlightDialog()
 end
 
 function WordReference:addToMainMenu(menu_items)
-	menu_items.wordreference = {
-		text = "WordReference settings",
-		sorting_hint = "search_settings",
-		sub_item_table = {
-			{
-				text = "Override Dictionary Quick Lookup",
-				checked_func = function()
-					return WordReference:get_override_dictionary_quick_lookup()
-				end,
-				callback = function(button)
-					self:toggle_override_dictionary_quick_lookup()
-					syncOverrideDictionaryQuickLookupChanged()
-				end,
-			},
-			{
-				text = "Auto-Detect Languages",
-				checked_func = function()
-					return WordReference:get_auto_detect_languages()
-				end,
-				callback = function(button)
-					self:toggle_auto_detect_languages()
-				end,
-			},
-			{
-				text = "Configure Languages",
-				callback = function(button)
-					self:showLanguageSettings(self.ui)
-				end,
-				keep_menu_open = false,
-			},
-			{
-				text = "Check for updates...",
-				callback = function(button)
-					Update:update()
-				end,
-				keep_menu_open = false,
-			},
-		},
-	}
+	menu_items.wordreference = self.menu_item
 end
 
 function syncOverrideDictionaryQuickLookupChanged()

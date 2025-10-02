@@ -249,47 +249,53 @@ function Dialog:makeDefinition(ui, phrase, html_content, title, large_size, clos
 end
 
 function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_font_callback)
-	local WordReference = require("wordreference")
+	local WordReference = ui["wordreference"]
+
 	local quick_settings_dialog
-    local buttons = {
-        {{
-            text_func = function()
-                return "Font size: " .. WordReference:get_font_size()
-            end,
-            align = "left",
-            callback = function()
-                UIManager:close(quick_settings_dialog)
+	local buttons = {
+		{ {
+			text_func = function()
+				return "Font size: " .. WordReference:get_font_size()
+			end,
+			align = "left",
+			callback = function()
+				UIManager:close(quick_settings_dialog)
 
-                local SpinWidget = require("ui/widget/spinwidget")
-                local widget = SpinWidget:new{
-                    title_text = "Font size",
-                    value = WordReference:get_font_size(),
-                    value_min = 10,
-                    value_max = 30,
-                    default_value = 14,
-                    keep_shown_on_apply = true,
-                    callback = function(spin)
-                    	WordReference:save_font_size(spin.value)
-                    	if changed_font_callback then
-                     		changed_font_callback()
-                     	end
-                    end,
-                }
-                UIManager:show(widget)
-            end,
-        }},
-        {{
-            text = "Configure Languages",
-            align = "left",
-            callback = function()
-            	UIManager:close(quick_settings_dialog)
+				local SpinWidget = require("ui/widget/spinwidget")
+				local widget = SpinWidget:new {
+					title_text = "Font size",
+					value = WordReference:get_font_size(),
+					value_min = 10,
+					value_max = 30,
+					default_value = 14,
+					keep_shown_on_apply = true,
+					callback = function(spin)
+						WordReference:save_font_size(spin.value)
+						if changed_font_callback then
+							changed_font_callback()
+						end
+					end,
+				}
+				UIManager:show(widget)
+			end,
+		} },
+		{ {
+			text = "Show all settings",
+			align = "left",
+			callback = function()
+				UIManager:close(quick_settings_dialog)
+				if close_callback then
+					close_callback()
+				end
 
-				WordReference:showLanguageSettings(ui, nil, function()
-					UIManager:close(quick_settings_dialog)
-					if close_callback then
-						close_callback()
-					end
-				end)
+				-- Open the WordReference settings menu.
+				local readerMenu = ui["menu"]
+				readerMenu:onShowMenu()
+
+				local touchMenu = readerMenu.menu_container[1]
+				touchMenu:switchMenuTab(5)
+				touchMenu.bar:switchToTab(5)
+				touchMenu:onMenuSelect(WordReference.menu_item)
 			end,
 		} },
 	}
