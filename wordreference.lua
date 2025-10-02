@@ -325,7 +325,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 				close_callback()
 			end
 		end)
-	UIManager:show(definition_dialog)
+	UIManager:show(definition_dialog, didError and "full" or nil)
 end
 
 return WordReference
