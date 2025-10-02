@@ -60,7 +60,7 @@ function WordReference:init()
 				keep_menu_open = false,
 			},
 			{
-				text = "Check for updates...",
+				text = "Check for updates",
 				callback = function(button)
 					Update:update()
 				end,
