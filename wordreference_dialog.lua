@@ -303,7 +303,8 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
 		shrink_unneeded_width = true,
 		buttons = buttons,
 		anchor = function()
-			return anchor
+			local prefers_pop_down = true
+			return anchor, prefers_pop_down
 		end,
 	}
 	UIManager:show(quick_settings_dialog)
