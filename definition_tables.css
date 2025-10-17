@@ -1,3 +1,14 @@
+html,
+body {
+	margin: 0;
+	margin-left: 10px;
+	padding: 0;
+}
+
+@page {
+	margin: 0;
+}
+
 /* Scope */
 .wr table {
 	width: 100%;
