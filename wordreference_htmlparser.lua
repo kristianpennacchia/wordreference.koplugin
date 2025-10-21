@@ -195,6 +195,41 @@ local function lift_wrtopsection(table_html)
 	return table.concat(lifted, ""), cleaned
 end
 
+local function inject_width_fill_row(table_html)
+	if type(table_html) ~= "string" then
+		return table_html
+	end
+	if table_html:find("wr%-width%-fill", 1, true) then
+		return table_html
+	end
+
+	local filler_row
+	for inner in table_html:gmatch("<%s*[Tt][Rr][^>]*>(.-)</%s*[Tt][Rr]%s*>") do
+		local cells = {}
+		for cell_html in inner:gmatch("<%s*[Tt][DdHh][^>]*>(.-)</%s*[Tt][DdHh]%s*>") do
+			cells[#cells + 1] = cell_html
+		end
+		if #cells == 3 then
+			local middle = cells[2]:gsub("&nbsp;", " ")
+			if middle:gsub("%s+", "") == "" then
+				local payload = ("mmmm "):rep(18)
+				local cell = '<td class="wr-width-fill-cell"><span class="wr-width-fill-span">' ..
+					payload .. "</span></td>"
+				filler_row = '<tr class="wr-width-fill" aria-hidden="true">' ..
+					cell .. cell .. cell .. "</tr>"
+				break
+			end
+		end
+	end
+
+	if not filler_row then
+		return table_html
+	end
+
+	local replaced, count = table_html:gsub("</%s*[Tt][Aa][Bb][Ll][Ee]%s*>", filler_row .. "%0", 1)
+	return count > 0 and replaced or table_html
+end
+
 local function extract_definition_tables(html, parent_open)
 	local parent_close = find_matching_close(html, parent_open)
 	local limit = parent_close and parent_close.start or #html
@@ -213,9 +248,10 @@ local function extract_definition_tables(html, parent_open)
 				if not frag:lower():find("wrreporterror", 1, true) then
 					local lifted, cleaned = lift_wrtopsection(frag)
 					if lifted then
+						cleaned = inject_width_fill_row(cleaned)
 						chunks[#chunks + 1] = lifted .. cleaned
 					else
-						chunks[#chunks + 1] = cleaned
+						chunks[#chunks + 1] = inject_width_fill_row(cleaned)
 					end
 				end
 				i = tclose.stop + 1

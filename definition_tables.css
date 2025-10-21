@@ -121,3 +121,21 @@ a {
 .wr .conjugate {
 	display: none;
 }
+
+/* Invisible sizing row to force MuPDF tables to occupy full width */
+.wr tr.wr-width-fill,
+.wr tr.wr-width-fill td.wr-width-fill-cell {
+	height: 0;
+	border: 0;
+	padding: 0;
+	font-size: 0;
+	line-height: 0;
+	overflow: hidden;
+}
+.wr .wr-width-fill-span {
+	display: inline-block;
+	font-size: 1rem;
+	line-height: 0;
+	color: transparent;
+	pointer-events: none;
+}
