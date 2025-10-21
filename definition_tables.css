@@ -115,3 +115,7 @@ a {
 .wr .langHeader {
 	display: none;
 }
+
+.wr .conjugate {
+	display: none;
+}
