@@ -6,6 +6,10 @@ body {
 	font-family: "Noto Sans";
 }
 
+a {
+	text-decoration: none;
+}
+
 @page {
 	margin: 0;
 	font-family: "Noto Sans";
