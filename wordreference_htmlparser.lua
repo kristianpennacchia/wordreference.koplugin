@@ -149,6 +149,52 @@ end
 
 -- Collect ALL descendant <table> elements under the given parent (any depth).
 -- Skips WR's "report error" table. Returns concatenated HTML or nil.
+local function lift_wrtopsection(table_html)
+	if type(table_html) ~= "string" or #table_html == 0 then
+		return nil, table_html
+	end
+
+	local lifted = {}
+
+	local cleaned = table_html:gsub("(<%s*[Tt][Rr][^>]*>)([%s%S]-)(</%s*[Tt][Rr]%s*>)", function(open_tag, inner, close_tag)
+		local class_attr = open_tag:match('[Cc][Ll][Aa][Ss][Ss]%s*=%s*"([^"]*)"')
+			or open_tag:match("[Cc][Ll][Aa][Ss][Ss]%s*=%s*'([^']*)'")
+			or open_tag:match("[Cc][Ll][Aa][Ss][Ss]%s*=%s*([^%s>]+)")
+
+		if class_attr then
+			local cls = " " .. class_attr:lower():gsub("%s+", " ") .. " "
+			if cls:find(" wrtopsection ", 1, true) then
+				local attrs = open_tag:match("^<%s*[Tt][Rr]([^>]*)>")
+				local div_open = "<div" .. (attrs or "") .. ">"
+				local content = inner:gsub("<%s*[Tt][Dd]([^>]*)>", function(td_attrs)
+					local td_attr = td_attrs
+						:gsub('%s+[Cc][Oo][Ll][Ss][Pp][Aa][Nn]%s*=%s*"[^"]*"', "")
+						:gsub("%s+[Cc][Oo][Ll][Ss][Pp][Aa][Nn]%s*=%s*[^%s>]+", "")
+						:gsub('%s+[Rr][Oo][Ww][Ss][Pp][Aa][Nn]%s*=%s*"[^"]*"', "")
+						:gsub("%s+[Rr][Oo][Ww][Ss][Pp][Aa][Nn]%s*=%s*[^%s>]+", "")
+					if td_attr:match("%S") then
+						return "<div" .. td_attr .. ">"
+					end
+					return "<div>"
+				end)
+				content = content:gsub("</%s*[Tt][Dd]%s*>", "</div>")
+
+				lifted[#lifted + 1] = div_open .. content .. "</div>\n"
+				return ""
+			end
+		end
+		return open_tag .. inner .. close_tag
+	end)
+
+	cleaned = cleaned:gsub("(<%s*[Tt][Aa][Bb][Ll][Ee][^>]*>)%s*", "%1", 1)
+
+	if #lifted == 0 then
+		return nil, table_html
+	end
+
+	return table.concat(lifted, ""), cleaned
+end
+
 local function extract_definition_tables(html, parent_open)
 	local parent_close = find_matching_close(html, parent_open)
 	local limit = parent_close and parent_close.start or #html
@@ -165,7 +211,12 @@ local function extract_definition_tables(html, parent_open)
 				local tclose = find_matching_close(html, tag); if not tclose then break end
 				local frag = html:sub(tag.start, tclose.stop)
 				if not frag:lower():find("wrreporterror", 1, true) then
-					chunks[#chunks + 1] = frag
+					local lifted, cleaned = lift_wrtopsection(frag)
+					if lifted then
+						chunks[#chunks + 1] = lifted .. cleaned
+					else
+						chunks[#chunks + 1] = cleaned
+					end
 				end
 				i = tclose.stop + 1
 			else
