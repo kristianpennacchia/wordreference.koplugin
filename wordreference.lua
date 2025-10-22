@@ -44,6 +44,15 @@ function WordReference:init()
 				end,
 			},
 			{
+				text = "Include inflections in lookup",
+				checked_func = function()
+					return WordReference:get_include_inflections()
+				end,
+				callback = function(button)
+					self:toggle_include_inflections()
+				end,
+			},
+			{
 				text = "Auto-Detect languages",
 				checked_func = function()
 					return WordReference:get_auto_detect_languages()
@@ -86,6 +95,15 @@ end
 function WordReference:toggle_auto_detect_languages()
 	local newValue = not self:get_auto_detect_languages()
 	G_reader_settings:saveSetting("wordreference_auto_detect_languages", newValue)
+end
+
+function WordReference:get_include_inflections()
+	return G_reader_settings:nilOrTrue("wordreference_include_inflections")
+end
+
+function WordReference:toggle_include_inflections()
+	local newValue = not self:get_include_inflections()
+	G_reader_settings:saveSetting("wordreference_include_inflections", newValue)
 end
 
 function WordReference:get_lang_settings()
@@ -297,7 +315,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 	end
 
 	if not didError then
-		local wr_html_content, wr_copyright, parse_error = HtmlParser.parse(search_result.body)
+		local wr_html_content, wr_copyright, parse_error = HtmlParser.parse(search_result.body, self:get_include_inflections())
 		if not wr_html_content then
 			html_content = string.format([[
 	<h1>No results found for <em>'%s'</em> (%s &rarr; %s)</h1>

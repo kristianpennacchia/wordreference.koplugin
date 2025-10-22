@@ -451,7 +451,7 @@ end
 
 -- Returns concatenated HTML of all definition tables and the copyright.
 -- On failure: returns nil, error_message
-function HtmlParser.parse(html)
+function HtmlParser.parse(html, include_inflections)
 	if type(html) ~= "string" or #html == 0 then
 		return nil, nil, "Empty HTML"
 	end
@@ -479,7 +479,7 @@ function HtmlParser.parse(html)
 	end
 
 	local parsed_html = table.concat(parts)
-	if inflections_html and inflections_html:len() > 0 then
+	if include_inflections and inflections_html and inflections_html:len() > 0 then
 		parsed_html = inflections_html .. "<br /><br />" .. parsed_html
 	end
 
