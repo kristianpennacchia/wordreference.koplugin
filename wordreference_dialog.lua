@@ -267,7 +267,7 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
 					value = WordReference:get_font_size(),
 					value_min = 10,
 					value_max = 30,
-					default_value = 14,
+					default_value = 16,
 					keep_shown_on_apply = true,
 					callback = function(spin)
 						WordReference:save_font_size(spin.value)

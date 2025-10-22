@@ -104,7 +104,7 @@ function WordReference:save_lang_settings(from_lang, to_lang)
 end
 
 function WordReference:get_font_size()
-	return G_reader_settings:readSetting("wordreference_font_size") or 14
+	return G_reader_settings:readSetting("wordreference_font_size") or 16
 end
 
 function WordReference:save_font_size(font_size)
