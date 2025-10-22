@@ -105,6 +105,10 @@ a {
 	font-style: normal;
 }
 
+.wr .inflectionsSection {
+	font-size: 1em;
+}
+
 .wr .wrcopyright {
 	font-size: 0.75em;
 	padding-left: 0.8rem;
