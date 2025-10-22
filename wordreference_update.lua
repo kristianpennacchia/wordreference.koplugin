@@ -53,16 +53,16 @@ function Update:update()
 		text = string.format("Do you want to update?\nInstalled version: %s\nAvailable version: %s", current_version, new_release.tag_name),
 		modal = false,
 		keep_dialog_open = true,
-		ok_text = _("Update"),
+		ok_text = "Update",
 		ok_callback = function()
 			UIManager:close(confirm_box)
 			self:install(new_release)
 		end,
 		other_buttons = { {
 			{
-				text = "Release notes",
+				text = "Changelog",
 				callback = function()
-					UIManager:show(Dialog:makeReleaseNotes(new_release))
+					UIManager:show(Dialog:makeChangelog(releases))
 				end
 			}
 		} }

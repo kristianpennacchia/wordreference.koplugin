@@ -310,11 +310,23 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
 	UIManager:show(quick_settings_dialog)
 end
 
-function Dialog:makeReleaseNotes(release)
+function Dialog:makeChangelog(releases)
 	local TextViewer = require("ui/widget/textviewer")
+
+	local changelog = ""
+	for _, release in ipairs(releases) do
+		if release.prerelease or release.draft then
+			goto continue
+		end
+
+		changelog = changelog .. release.name .. "\n" .. release.body .. "\n\n"
+
+		::continue::
+	end
+
 	UIManager:show(TextViewer:new {
-		title = release.name,
-		text = release.body,
+		title = "Changelog",
+		text = changelog,
 		text_type = "general",
 		height = math.floor(Screen:getHeight() * 0.6),
 	})
