@@ -306,7 +306,7 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 
 	if not search_result or (tonumber(search_result.status) ~= 200 and tonumber(search_result.status) ~= 404) then
 		html_content = string.format([[
-<h3>Encountered an error (%s → %s):</h3>
+<h2>Encountered an error (%s → %s)</h2>
 <p>%s</p>
 ]], from_lang, to_lang, search_error or (search_result and search_result.status_line) or "unknown")
 		copyright = "WordReference"
@@ -318,8 +318,9 @@ function WordReference:showDefinition(ui, phrase, close_callback)
 		local wr_html_content, wr_copyright, parse_error = HtmlParser.parse(search_result.body, self:get_include_inflections())
 		if not wr_html_content then
 			html_content = string.format([[
-	<h1>No results found for <em>'%s'</em> (%s &rarr; %s)</h1>
-	]], phrase, from_lang, to_lang)
+<h2><em>"%s"</em></h2>
+<p>No results found (%s → %s)</p>
+]], phrase, from_lang, to_lang)
 			if not wr_copyright then
 				copyright = "WordReference"
 			else
