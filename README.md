@@ -3,8 +3,8 @@
 Lookup highlighted words or phrases on WordReference directly from KOReader.
 
 <p align="left">
-	<img src="https://github.com/user-attachments/assets/e5c46181-91b3-4812-8450-2ca99f00c50f" width=30%>
-	<img src="https://github.com/user-attachments/assets/4c30b0ad-0b97-4da0-a42d-4586f44a899f" width=30%>
+	<img src="https://github.com/user-attachments/assets/37878e48-2bc1-4eb3-9fb6-eaf65e1ef0f5" width=30%>
+	<img src="https://github.com/user-attachments/assets/70fc9fcc-af97-4224-825b-0e3b8ca2e897" width=30%>
 	<img src="https://github.com/user-attachments/assets/49362e3b-3d60-4f05-971b-ed3fd7b55d28" width=30%>
 </p>
 
@@ -40,6 +40,8 @@ Accessed via Menu → 🔎 → Settings → WordReference settings.
 
 - Override Dictionary Quick Lookup
   - This will override the dictionary quick lookup feature that is enabled with the KOReader setting `Dictionary on single word selection`. If this setting is disabled, then this override will do nothing.
+- Include inflections in lookup
+  - When looking up a word or phrase, its inflections (if available) will be displayed.
 - Auto-Detect languages
   - This will attempt to auto-detect the language of the book and the language used for KOReader, and use this to perform the WordReference lookup.
 - Configure languages
