@@ -288,6 +288,8 @@ function Dialog:makeQuickSettingsDropdown(ui, anchor, close_callback, changed_fo
 					close_callback()
 				end
 
+				UIManager:setDirty("widget", "ui")
+
 				-- Open the WordReference settings menu.
 				local readerMenu = ui["menu"]
 				readerMenu:onShowMenu()
