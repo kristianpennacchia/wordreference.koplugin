@@ -15,11 +15,13 @@ function WebRequest:build_url(query, from_lang, to_lang)
 end
 
 function WebRequest:http_get(url, additional_headers)
-	local current_version = require("wordreference_version")
 	local headers = {
-		["User-Agent"] = "KOReader-WordReference/" .. current_version,
+		["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+			.. "AppleWebKit/537.36 (KHTML, like Gecko) "
+			.. "Chrome/125.0.0.0 Safari/537.36",
 		["Accept"] = "text/html",
 		["Accept-Language"] = "en",
+		["Cookie"] = "nginx_wr_human=1; Path=/; Domain=wordreference.com;"
 	}
 
 	if additional_headers then
