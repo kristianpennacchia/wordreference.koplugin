@@ -135,8 +135,53 @@ function Dialog:makeDefinition(ui, phrase, html_content, title, large_size, clos
 	local bottom_buttons = {}
 
 	local VocabBuilder = ui["vocabbuilder"]
-	if VocabBuilder then
-		VocabBuilder:onDictButtonsReady(ui, bottom_buttons)
+	local isVocabBuilderSetup = false
+	local dict_popup = {
+		ui = ui,
+		word = phrase,
+		lookupword = phrase,
+		is_wiki = false,
+		is_wiki_fullpage = false,
+	}
+
+	if VocabBuilder and VocabBuilder.onDictButtonsReady then
+		VocabBuilder:onDictButtonsReady(dict_popup, bottom_buttons)
+		isVocabBuilderSetup = true
+	else
+		local spec = ui.dictionary
+			and ui.dictionary._dict_buttons
+			and ui.dictionary._dict_buttons.vocabulary
+
+		if spec then
+			local show = true
+			if spec.show_func then
+				show = spec.show_func(dict_popup)
+			end
+
+			if show then
+				table.insert(bottom_buttons, 1, { {
+					id = spec.id,
+					text = spec.text,
+					text_func = spec.text_func and function()
+						return spec.text_func(dict_popup)
+					end,
+					font_bold = spec.font_bold,
+					width = spec.width,
+					vsync = spec.vsync,
+					enabled_func = spec.enable_func and function()
+						return spec.enable_func(dict_popup)
+					end,
+					enabled = spec.enabled,
+					callback = spec.callback and function()
+						return spec.callback(dict_popup)
+					end,
+					hold_callback = spec.hold_callback and function()
+						return spec.hold_callback(dict_popup)
+					end,
+				} })
+				isVocabBuilderSetup = true
+			end
+		end
 	end
 
 	table.insert(bottom_buttons, #bottom_buttons + 1, {
@@ -239,10 +284,20 @@ function Dialog:makeDefinition(ui, phrase, html_content, title, large_size, clos
 	html_widget.dialog = definition_dialog
 
 	-- Hack for compatibility with VocabBuilder button callback functionality
-	if VocabBuilder then
-		ui.ui = ui
-		ui.button_table = button_table
-		ui.lookupword = phrase
+	if VocabBuilder and isVocabBuilderSetup then
+		if VocabBuilder.onDictButtonsReady then
+			ui.ui = ui
+			ui.button_table = button_table
+			ui.lookupword = phrase
+		else
+			definition_dialog.ui = ui
+			definition_dialog.word = phrase
+			definition_dialog.lookupword = phrase
+			definition_dialog.button_table = button_table
+			definition_dialog.is_wiki = false
+			definition_dialog.is_wiki_fullpage = false
+			dict_popup = definition_dialog
+		end
 	end
 
 	return definition_dialog
