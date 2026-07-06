@@ -23,6 +23,8 @@ function WordReference:init()
 	self:onDispatcherRegisterActions()
 	self.ui.menu:registerToMainMenu(self)
 
+	self:addToDictionaryDialog()
+
 	if self.ui.highlight then
 		self:addToHighlightDialog()
 	end
@@ -133,8 +135,28 @@ function WordReference:onDispatcherRegisterActions()
 	Dispatcher:registerAction("wordreference_action", { category = "none", event = "Close", title = _("Word Reference"), general = true, })
 end
 
+function WordReference:makeDictionaryButtonCallback(dict_popup)
+	NetworkMgr:runWhenOnline(function()
+		Trapper:wrap(function()
+			UIManager:close(dict_popup)
+			self:showDefinition(dict_popup.ui, dict_popup.word, function()
+				UIManager:scheduleIn(G_defaults:readSetting("DELAY_CLEAR_HIGHLIGHT_S", 0.5), function()
+					if not dict_popup.ui.highlight.highlight_dialog or not UIManager:isWidgetShown(dict_popup.ui.highlight.highlight_dialog) then
+						dict_popup.ui.highlight:clear()
+					end
+				end)
+			end)
+		end)
+	end)
+end
+
 function WordReference:onDictButtonsReady(dict_popup, buttons)
 	if dict_popup.is_wiki_fullpage then
+		return false
+	end
+
+	-- Check if new API is available and if so, don't do anything.
+	if self.ui and self.ui.dictionary and self.ui.dictionary.addToDictButtons then
 		return false
 	end
 
@@ -142,18 +164,7 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 		id = "wordreference",
 		text = _("WordReference"),
 		callback = function()
-			NetworkMgr:runWhenOnline(function()
-				Trapper:wrap(function()
-					UIManager:close(dict_popup)
-					self:showDefinition(dict_popup.ui, dict_popup.word, function()
-						UIManager:scheduleIn(G_defaults:readSetting("DELAY_CLEAR_HIGHLIGHT_S", 0.5), function()
-							if not dict_popup.ui.highlight.highlight_dialog or not UIManager:isWidgetShown(dict_popup.ui.highlight.highlight_dialog) then
-								dict_popup.ui.highlight:clear()
-							end
-						end)
-					end)
-				end)
-			end)
+			self:makeDictionaryButtonCallback(dict_popup)
 		end
 	}
 
@@ -175,6 +186,26 @@ function WordReference:onDictButtonsReady(dict_popup, buttons)
 
 	-- don't consume the event so that other listeners can handle `onDictButtonsReady` if they need to.
 	return false
+end
+
+function WordReference:addToDictionaryDialog()
+	if self.ui and self.ui.dictionary and self.ui.dictionary.addToDictButtons then
+		-- New API.
+		self.ui.dictionary:addToDictButtons({
+			id = "wordreference",
+			menu_text = "WordReference",
+			text_func = function()
+				if self:get_auto_detect_languages() then
+					return "WordReference (auto-detect)"
+				else
+					return string.format("WordReference (%s → %s)", self:get_lang_settings().from_lang, self:get_lang_settings().to_lang)
+				end
+			end,
+			callback = function(dict_popup)
+				self:makeDictionaryButtonCallback(dict_popup)
+			end
+		})
+	end
 end
 
 function WordReference:addToHighlightDialog()
