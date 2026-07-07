@@ -184,7 +184,7 @@ function Dialog:makeDefinition(ui, phrase, html_content, title, large_size, clos
 		end
 	end
 
-	table.insert(bottom_buttons, #bottom_buttons + 1, {
+	local main_buttons = {
 		{
 			id = "wikipedia",
 			text = _("Wikipedia"),
@@ -230,7 +230,28 @@ function Dialog:makeDefinition(ui, phrase, html_content, title, large_size, clos
 				end)
 			end
 		},
-	})
+	}
+
+	local xray = ui["xray"]
+	if xray and xray.xray_mode_enabled then
+		table.insert(main_buttons, {
+			id = "xray",
+			text = _("X-Ray"),
+			callback = function()
+				UIManager:nextTick(function()
+					UIManager:close(definition_dialog)
+					if close_callback then
+						close_callback()
+					end
+					UIManager:setDirty("widget", "ui")
+
+					xray.lookup_manager:handleLookup(phrase, nil, nil)
+				end)
+			end
+		})
+	end
+
+	table.insert(bottom_buttons, #bottom_buttons + 1, main_buttons)
 
 	ui:handleEvent(Event:new("WordReferenceDefinitionButtonsReady", ui, bottom_buttons))
 
